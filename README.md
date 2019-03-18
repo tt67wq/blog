@@ -5,4 +5,7 @@
 [所有文章 | Archives](https://github.com/tt67wq/blog/issues)
 
 # 欧拉计划进度条
-[ProjectEuler](https://projecteuler.net/progress=clearlove)
+![image](https://projecteuler.net/profile/clearlove.png)
+
+# 友情链接
+![slqt的博客](https://www.cnblogs.com/slqt/)
