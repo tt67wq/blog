@@ -9,3 +9,4 @@
 
 # 友情链接
 [slqt的博客](https://www.cnblogs.com/slqt/)
+[一个二次元博客](https://crosschannel.cc/)
