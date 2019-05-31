@@ -4,6 +4,7 @@
 # blog issues
 [所有文章 | Archives](https://github.com/tt67wq/blog/issues)
 
+  - [线性哈希](https://github.com/tt67wq/blog/issues/34)
   - [并发的语言准则](https://github.com/tt67wq/blog/issues/32)
   - [读《曾国潘传》有感](https://github.com/tt67wq/blog/issues/31)
   - [欧拉189题思路](https://github.com/tt67wq/blog/issues/30)
