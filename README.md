@@ -5,6 +5,7 @@
 [所有文章 | Archives](https://github.com/tt67wq/blog/issues)
 
   - [欧拉计划212与容斥原理](https://github.com/tt67wq/blog/issues/36)
+  - [线性哈希](https://github.com/tt67wq/blog/issues/34)
   - [并发的语言准则](https://github.com/tt67wq/blog/issues/32)
   - [读《曾国潘传》有感](https://github.com/tt67wq/blog/issues/31)
   - [欧拉189题思路](https://github.com/tt67wq/blog/issues/30)
@@ -35,7 +36,7 @@
 # 欧拉计划进度条
 ![image](https://projecteuler.net/profile/clearlove.png)
 
-# 友情链接
-[slqt的博客](https://www.cnblogs.com/slqt/)
 
-[一个二次元博客](https://crosschannel.cc/)
+# 友情链接
+
+暂无，商业互吹请加微信MTMzNzI1NzY5ODc=
