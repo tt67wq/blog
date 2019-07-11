@@ -13,7 +13,6 @@
   - [elixir服务架构研究](https://github.com/tt67wq/blog/issues/27)
   - [欧拉183题解题思路](https://github.com/tt67wq/blog/issues/26)
   - [术与道](https://github.com/tt67wq/blog/issues/25)
-  - [一个沙雕git工具](https://github.com/tt67wq/blog/issues/23)
   - [图论复习](https://github.com/tt67wq/blog/issues/22)
   - [乌拉姆数列计算](https://github.com/tt67wq/blog/issues/21)
   - [带公司](https://github.com/tt67wq/blog/issues/20)
