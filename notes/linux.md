@@ -13,20 +13,17 @@ curl http://ip111.cn/
 
 #### 科学上网代理Pac script
 ```
-function FindProxyForURL(url, host) {  
-    if (dnsDomainIs(host, "intranet.domain.com") ||
-        shExpMatch(host, "(*.abcdomain.com|abcdomain.com)"))
-        return "DIRECT";
+function FindProxyForURL(url, host) {
 
-    if (dnsDomainIs(host, "google.com") ||
-        shExpMatch(host, "(*.google.com|google.com)"))
-	return "SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080";
+    var hosts = [ "google.com", "github.com" ];
+    var i;
 
-    
-    if (dnsDomainIs(host, "github.com") ||
-        shExpMatch(host, "(*.github.com|github.com)"))
-	return "SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080";
-    
+    for (i = 0; i < hosts.length; i++) {
+        if (dnsDomainIs(host, hosts[i]) || shExpMatch(host, "*." + hosts[i] + "|" + hosts[i]))
+            return "SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080";
+    }
+
     return "DIRECT";
 }
+
 ```
