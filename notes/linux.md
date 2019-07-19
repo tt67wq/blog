@@ -7,15 +7,15 @@ sudo pacman-mirrors -i -c China -m rank
 
 #### 获取自己的IP
 ```
-dig @resolver1.opendns.com ANY myip.opendns.com +short
 curl http://ip111.cn/
+curl https://pv.sohu.com/cityjson
 ```
 
 #### 科学上网代理Pac script
 ```
 function FindProxyForURL(url, host) {
 
-    var hosts = [ "google.com", "github.com" ];
+    var hosts = [ "v2ex.com",  "stackoverflow.com", "google.com", "github.com" ];
     var i;
 
     for (i = 0; i < hosts.length; i++) {
@@ -25,5 +25,4 @@ function FindProxyForURL(url, host) {
 
     return "DIRECT";
 }
-
 ```
