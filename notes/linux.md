@@ -7,8 +7,12 @@ sudo pacman-mirrors -i -c China -m rank
 
 #### 获取自己的IP
 ```
-curl http://ip111.cn/
 curl https://pv.sohu.com/cityjson
+```
+
+#### 批量杀进程
+```
+ps aux | grep "some process" | awk '{print $2}' | xargs kill -9
 ```
 
 #### 科学上网代理Pac script
