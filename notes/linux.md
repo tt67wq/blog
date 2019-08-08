@@ -10,6 +10,11 @@ sudo pacman-mirrors -i -c China -m rank
 curl https://pv.sohu.com/cityjson
 ```
 
+#### 测试网络带宽
+```
+curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python -
+```
+
 #### 批量杀进程
 ```
 ps aux | grep "some process" | awk '{print $2}' | xargs kill -9
