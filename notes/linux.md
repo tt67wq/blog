@@ -35,3 +35,8 @@ function FindProxyForURL(url, host) {
     return "DIRECT";
 }
 ```
+
+#### 列出当前目录文件大小并排序
+```
+du -sh * | sort -nr
+```
