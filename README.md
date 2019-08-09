@@ -4,6 +4,7 @@
 # blog issues
 [所有文章 | Archives](https://github.com/tt67wq/blog/issues)
 
+  - [一个简单的老文件清理脚本](https://github.com/tt67wq/blog/issues/39)
   - [ZOJ 1062 与卡特兰数组](https://github.com/tt67wq/blog/issues/38)
   - [欧拉计划212与容斥原理](https://github.com/tt67wq/blog/issues/36)
   - [线性哈希](https://github.com/tt67wq/blog/issues/34)
