@@ -35,10 +35,5 @@
   - [倒水问题](https://github.com/tt67wq/blog/issues/1)
 
 
-# 欧拉计划进度条
-![image](https://projecteuler.net/profile/clearlove.png)
-
-
-# 友情链接
-
-暂无，商业互吹请加微信MTMzNzI1NzY5ODc=
+# 联系方式
+  商业互吹请加微信MTMzNzI1NzY5ODc=
