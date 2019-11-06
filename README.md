@@ -4,6 +4,7 @@
 # blog issues
 [所有文章 | Archives](https://github.com/tt67wq/blog/issues)
 
+  - [C泛型Stack](https://github.com/tt67wq/blog/issues/41)
   - [求直线上的整数点](https://github.com/tt67wq/blog/issues/40)
   - [一个简单的老文件清理脚本](https://github.com/tt67wq/blog/issues/39)
   - [ZOJ 1062 与卡特兰数组](https://github.com/tt67wq/blog/issues/38)
