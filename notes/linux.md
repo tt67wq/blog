@@ -29,7 +29,10 @@ du -sh * | sort -nr
 #### 利用ssh和nc建设临时穿透
 ```
 1. 内网机器执行，ssh隧道，远端8888口映射到本地4000口
-ssh -fN -R 8888:localhost:4000 root@101.xxx.xxx.xxx.xxx -p 22000
+ssh -fN -R 8888:localhost:4000 root@xxx.xxx.xxx.xxx -p 22000
+或者
+autossh -p 22000 -M 8877 -NR 8888:localhost:4000 root@xxx.xxx.xxx.xxx
+
 
 2. 公网服务器执行，nc监听80口，并转发至8888口
 nc -k -l -p 80 -c "nc 127.0.0.1 8888 -i 5" -vv
