@@ -4,6 +4,7 @@
 # blog issues
 [所有文章 | Archives](https://github.com/tt67wq/blog/issues)
 
+  - [编写个Shadowsocks](https://github.com/tt67wq/blog/issues/44)
   - [400行C代码实现一个虚拟机 代码实践](https://github.com/tt67wq/blog/issues/43)
   - [利用netcat和ssh做内网穿透](https://github.com/tt67wq/blog/issues/42)
   - [C泛型Stack](https://github.com/tt67wq/blog/issues/41)
