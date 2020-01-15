@@ -42,3 +42,8 @@ nc -k -l -p 80 -c "nc 127.0.0.1 8888 -i 5" -vv
 ```
 sudo lshw -short
 ```
+
+#### 在线剪贴板
+```
+cmd | curl -F "c=@-" "http://fars.ee/"
+```
