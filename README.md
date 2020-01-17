@@ -4,6 +4,7 @@
 # blog issues
 [所有文章 | Archives](https://github.com/tt67wq/blog/issues)
 
+  - [LZW压缩的Elixir实现](https://github.com/tt67wq/blog/issues/46)
   - [中国剩余定理算法编写](https://github.com/tt67wq/blog/issues/45)
   - [编写个Shadowsocks](https://github.com/tt67wq/blog/issues/44)
   - [400行C代码实现一个虚拟机 代码实践](https://github.com/tt67wq/blog/issues/43)
