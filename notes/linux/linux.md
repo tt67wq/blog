@@ -50,7 +50,7 @@ cmd | curl -F "c=@-" "http://fars.ee/"
 
 #### logrotate配置
 ```
-/var/log/zerosocks/*log {
+/path/*.log {
     daily
     rotate 5
     compress
@@ -58,8 +58,5 @@ cmd | curl -F "c=@-" "http://fars.ee/"
     missingok
     notifempty
     create 644 root root
-    postrotate
-        /usr/bin/killall -HUP rsyslogd
-    endscript
 }              
 ```
