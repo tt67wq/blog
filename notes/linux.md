@@ -47,3 +47,19 @@ sudo lshw -short
 ```
 cmd | curl -F "c=@-" "http://fars.ee/"
 ```
+
+#### logrotate配置
+```
+/var/log/zerosocks/*log {
+    daily
+    rotate 5
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 644 root root
+    postrotate
+        /usr/bin/killall -HUP rsyslogd
+    endscript
+}              
+```
