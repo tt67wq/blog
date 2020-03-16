@@ -14,6 +14,15 @@
 
 这就开始吧。
 
+#### Erlang/Elixir中TCP简述
+在Erlang/Elixir中，tcp连接是用:gen_tcp模块来处理的。这篇文章中我们只编写客户端部分来与Redis服务交互，实际上:gen_tcp也可以用来编写TCP服务端。
+
+所有的发向Server的消息都用:gen_tcp.send/2函数来发送。而从服务端发送至客户端的消息我们总是倾向于把它们当作Erlang Message来处理，因为这样处理起来比较直观。后面我们会看到，我们将通过设置TCP socket的:active option选项来控制发送至客户端的消息。
+
+我们通过传递host、port等参数至:gen_tcp.connect/3来建立与服务端的连接。默认情况下，调用connect函数的进程会被认为是这个tcp连接的“controlling process”，意思就是这个进程将会处理所有发到这个socket的tcp消息。
+
+以上是我们对tcp连接所需要了解的知识，我们继续。
+
 
 
 ----
