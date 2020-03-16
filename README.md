@@ -2,7 +2,7 @@
 ![blog](https://raw.githubusercontent.com/tt67wq/blog/master/images/blog.png)
 
 # blog issues
-由于质量太差，暂时清空了博客，重新写
+1. [[译] Elixir中TCP连接处理技巧 -- Andrea Leopardi](https://github.com/tt67wq/blog/blob/master/blogs/Handling_TCP_connections_in_Elixir.md)
 
 
 
