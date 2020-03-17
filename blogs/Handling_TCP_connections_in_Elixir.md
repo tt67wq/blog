@@ -45,7 +45,7 @@ defmodule Redis do
   end
 end
 ```
-我们给`:gen_tcp.connect/3`设定的参数非常直观。:binary要求socket从TCP server中接收的消息以binary的格式接收而不是Erlang默认的charlist格式：在Elixir中这可能是我们想要的，而且可能是最高效的选择。`active: false`告诉socket永远不要把TCP message转换成发送给GenServer的Erlang message；我们将用`:gen_tcp.recv/2`函数来显式的接收tcp消息。我们这样做是为了我们的GenServer不被汹涌而来的tcp消息淹没：我们只在我们想要的时候去接收并处理它们。
+我们给`:gen_tcp.connect/3`设定的参数非常直观。`:binary`要求socket从TCP server中接收的消息以binary的格式接收而不是Erlang默认的charlist格式：在Elixir中这可能是我们想要的，而且可能是最高效的选择。`active: false`告诉socket永远不要把TCP message转换成发送给GenServer的Erlang message；我们将用`:gen_tcp.recv/2`函数来显式的接收tcp消息。我们这样做是为了我们的GenServer不被汹涌而来的tcp消息淹没：我们只在我们想要的时候去接收并处理它们。
 
 #### 发送消息
 现在我们已经有了一个连接上Redis服务的GenServer了，现在让我们给Redis发送一些指令。
