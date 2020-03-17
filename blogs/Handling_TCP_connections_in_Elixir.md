@@ -146,7 +146,23 @@ defmodule Redis do
     {:noreply, %{state | queue: new_queue}}}
   end
 end
+```
 
+#### 按需求收取消息
+在上面的篇幅中，为了能够以Erlang Message的形式接收TCP消息，我们从一个`active: false`的socket转移到了`active: true`的socket。它能正常运行，但在一种情况下会出现问题：当TCP服务发送大量数据给GenServer的时候，因为Erlang本身并没有对消息接收的队列大小做限制，这样很容易造成GenServer的消息雪崩；这也是我们最开始选择`active: false`的原因。为了解决这个问题，我们可以将`active: true`改成更保守的`active: once`：这样每次只会有一个tcp消息被转换成Erlang Message，然后socket又回到了`active: false`的状态。我们可以重新设置`active: once`来接收下一条消息，如此循环。我们每次只转换一条TCP消息为Erlang Message，这样可以保证我们能够处理它们。
+
+我们只要记得在接收一条`{:tcp, ...}`的消息的时候重新激活Socket即可，我们可以利用`:inet:setopt/2`函数来实现。
+```
+defmodule Redis do
+  # ...as before...
+
+  def handle_info({:tcp, socket, msg}, %{socket: socket} = state) do
+    # Allow the socket to send us the next message.
+    :inet.setopts(socket, active: :once)
+
+    # exactly as before
+  end
+end
 ```
 
 
