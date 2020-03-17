@@ -171,6 +171,13 @@ end
 很多现实世界中的库都使用着我所描述的模式：举个例子，[eredis](https://github.com/wooga/eredis)(Erlang最常用的Redis驱动)就跟我们的例子很类似：看看这部分[代码注释](https://github.com/wooga/eredis/blob/770f828918db710d0c0958c6df63e90a4d341ed7/src/eredis_client.erl#L1-L21)，基本上就是这篇文章的总结。另外一个跟我们的模式大致相似的例子就是[PostgreSQL](https://github.com/ericmj/postgrex)和[MongoDB](https://github.com/ankhers/mongodb)的Elixir驱动。目前我正在为[OrientDB](https://orientdb.com/orientdb/)编写Elixir驱动，也使用的是这个模式。所以这个肯定是可行的。
 
 
+### TCP连接处理的更优解
+上文中我们愉快的忽略了一个令人烦躁的问题 -- 错误处理！
+
+我们将继续愉快的忽略一系列可能发生的错误，例如，消息到来的时候遇到空队列(它会报一个`{{:value, val}, new_queue}`的模式匹配错误)，或是接收到不完整的TCP消息。但是在TCP连接中可能发生的一系列问题例如断线和超时这些我们是可以尝试解决的。
+
+我们可以自己手动的来处理这些异常，幸运的是，Elixir的核心开发者*James Fish*已经在他的类库[connection](https://github.com/fishcakez/connection)中做完了大部分工作。这个类库十分年轻，它已经被用在上文提到的[MongoDB驱动](https://github.com/ankhers/mongodb)和[OrientDB驱动](https://orientdb.com/orientdb/)之中了。
+
 
 
 ----
