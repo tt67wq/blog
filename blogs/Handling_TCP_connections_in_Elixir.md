@@ -165,6 +165,11 @@ defmodule Redis do
 end
 ```
 
+### 剧情转折
+上文描述的模式并不是我想出来的，很令人震惊对吧？我所形容的模式在一票Erlang和Elixir应用中非常常见。这个模式在任何需要连接tcp服务的场合(或者类似的场合)都表现的十分良好，它经常被用在数据库驱动，这也是我为啥选Redis来做例子的理由。
+
+很多现实世界中的库都使用着我所描述的模式：举个例子，[eredis](https://github.com/wooga/eredis)(Erlang最常用的Redis驱动)就跟我们的例子很类似：看看这部分[代码注释](https://github.com/wooga/eredis/blob/770f828918db710d0c0958c6df63e90a4d341ed7/src/eredis_client.erl#L1-L21)，基本上就是这篇文章的总结。另外一个跟我们的模式大致相似的例子就是[PostgreSQL](https://github.com/ericmj/postgrex)和[MongoDB](https://github.com/ankhers/mongodb)的Elixir驱动。目前我正在为[OrientDB](https://orientdb.com/orientdb/)编写Elixir驱动，也使用的是这个模式。所以这个肯定是可行的。
+
 
 
 
