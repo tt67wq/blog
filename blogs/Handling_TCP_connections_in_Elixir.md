@@ -178,6 +178,46 @@ end
 
 我们可以自己手动的来处理这些异常，幸运的是，Elixir的核心开发者*James Fish*已经在他的类库[connection](https://github.com/fishcakez/connection)中做完了大部分工作。这个类库十分年轻，它已经被用在上文提到的[MongoDB驱动](https://github.com/ankhers/mongodb)和[OrientDB驱动](https://orientdb.com/orientdb/)之中了。
 
+#### 使用Connection来处理连接
+这个库协议定义了一个名为`connection`的协议：这个协议所规定的API是GenServer协议的一个超集，所以它易于理解也容易整合进现有的项目。
+
+这篇[文档](https://hexdocs.pm/connection/Connection.html)详细的解释了`Connection`协议，这个库的主旨是实现一个连接着另一端且能做断线处理的进程。为了实现这一目标，`Connection`协议定义了两个附加函数并且修改了部分GenServer的返回值。
+
+我们这里只研究部分`Connection`的函数，如果你想了解更多细节，请阅读文档。
+
+#### 初始化连接
+我们的`Redis.init/1`回调函数实现了连接Redis服务的行为，阻塞了调用`Redis.start_link/0`函数的进程直到回调函数返回。如果我们不希望GenServer在连接上Redis服务之前做其他事情的话是没太大问题的。但是我们的`start_link/0`函数可能是被监控树所调用，或者是被专门来启动GenServer的进程所调用：在这种情况下，我们希望`start_link/0`函数尽快的返回`{:ok, pid}`的结果，然后在后台来完成连接的动作。我们也希望GenServer能用队列缓存住建立连接期间的请求。这个协议能够使进程非阻塞的启动GenServer，但是会阻塞后续的请求直到GenServer连接上Redis。
+	
+有了`Connection`我们可以完全做到这一点。`init/1`回调函数返回`{:connect, info, state}`而非`{:ok, state}`迫使`start_link/0`立即返回`{:ok, pid}`，同时调用了`connect/2`的GenServer回调阻塞GenServer接收其他的请求直到连接完成。`{:connect, info, state}`中的`info`应该包含我们建立连接的所有信息，这些信息我们并不想放在GenServer的state中保存。
+
+我们把代码做点改进：
+```
+defmodule Redis do
+  use Connection
+  @initial_state %{socket: nil}
+
+  def start_link do
+    # We need Connection.start_link/2 now,
+    # not GenServer.start_link/2
+    Connection.start_link(__MODULE__, @initial_state)
+  end
+
+  def init(state) do
+    # We use `nil` as we don't need any additional info
+    # to connect
+    {:connect, nil, state}
+  end
+
+  def connect(_info, state) do
+    opts = [:binary, active: :once]
+    {:ok, socket} = :gen_tcp.connect('localhost', 6379, opts)
+    {:ok, %{state | socket: socket}}
+  end
+end
+```
+
+这对我们之前的实现来说是个巨大改进，但是`Connection`库还可以做的更好。
+
 
 
 ----
