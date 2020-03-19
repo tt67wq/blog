@@ -60,3 +60,9 @@ cmd | curl -F "c=@-" "http://fars.ee/"
     create 644 root root
 }              
 ```
+
+#### Arch安装字体
+
+1. 字体文件放到~/.local/share/fonts/下
+2. 执行fc-cache -vf
+
