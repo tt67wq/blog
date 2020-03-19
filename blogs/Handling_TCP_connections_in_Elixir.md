@@ -218,6 +218,65 @@ end
 
 这对我们之前的实现来说是个巨大改进，但是`Connection`库还可以做的更好。
 
+#### 回退
+我们在使用`:gen_tcp.connect/3`连接Redis服务的地方直接使用`{:ok, socket} = ...`模式匹配非常不妥，这个地方有个很大隐患。如果连接意外中断，此处的模式匹配失败，那么整个GenServer都会挂掉。最明显的处理方法就是用case语句来匹配`:gen_tcp.connect/3`函数的返回值：
+```
+case :gen_tcp.connect('localhost', 6379, opts) do
+  {:ok, socket} ->
+    {:ok, %{state | socket: socket}}
+
+  {:error, reason} ->
+    # now what?
+end
+```
+
+现在我们便能够决定在有错误发生的情况下该如何处理。挂起GenServer或是返回error都很平常，现实世界中，我们通常会做重连的操作。我们可以令`connect/2`返回一个`{:backoff, timeout, state}`元组，这样`connect/2`会在`timeout`时间后被再次调用，尝试重连。我们的`connect/2`看起来是这样：
+```
+def connect(_info, state) do
+  opts = [:binary, active: :once]
+
+  case :gen_tcp.connect('localhost', 6379, opts) do
+    {:ok, socket} ->
+      {:ok, %{state | socket: socket}}
+
+    {:error, reason} ->
+      IO.puts("TCP connection error: #{inspect reason}")
+      # Try again in one second:
+      {:backoff, 1000, state}
+  end
+end
+
+```
+`Connection`的好处在于你可以在几乎任意一个回调函数中返回`{:backoff, timeout, state}`，这样断线的错误处理就变得很直观。
+
+当`{:backoff, timeout, state}`被返回时，`connect/2`被调用且用`:backoff`作它的第一个参数：这让我们很容易的区分这是初始连接还是重连的动作，方便我们做区别对待。比如说，我们想实现一个指数重连，即初次1秒后重试，第二次2秒后重试，第三次4秒后重试，如此直到达到最大重试次数。
+
+### 池化
+
+最后一个小技巧，我们的GenServer在[poolboy](https://github.com/devinus/poolboy)库的帮助下可以更平滑的使用。网上有许许多多关于`poolboy`的文档，所以我并不准备去解释它是怎么工作的。我只是展示下一个例子。
+
+首先，我们用`:poolboy.start_link/2`函数为GenServer创建一个固定大小的池。
+```
+poolboy_opts = [worker_module: Redis, size: 50]
+redis_opts = []
+{:ok, pool} = :poolboy.start_link(poolboy_opts, redis_opts)
+```
+
+然后，我们从池中拿出一个资源（即一个GenServer），做完Redis操作之后再归还至池中。
+```
+worker = :poolboy.checkout(pool)
+Redis.command(worker, ["SET", "mykey", 1])
+:ok = :poolboy.checkin(pool, worker)
+```
+
+没啥比这更舒服了！
+
+### 结论
+我们见识到了如何利用GenServer来实现一个tcp服务。我们构建了一个非阻塞的，能够在等待返回值的同时并发的发送请求。我们使用了[connection](https://github.com/fishcakez/connection)库的回退策略来处理TCP错误。最后我们简单看了看[poolboy](https://github.com/devinus/poolboy)库是怎样池化我们多个GenServer进程的。
+
+感谢您的阅读！
+
+*Written on June 19, 2015*
 
 
 ----
