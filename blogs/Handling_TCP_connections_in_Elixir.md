@@ -17,7 +17,7 @@ Elixir作为一门Erlang虚拟机上的语言，由于Erlang的设计风格和Er
 ### Erlang/Elixir中TCP简述
 在Erlang/Elixir中，tcp连接是用`:gen_tcp`模块来处理的。这篇文章中我们只编写客户端部分来与Redis服务交互，实际上`:gen_tcp`也可以用来编写TCP服务端。
 
-所有的发向Server的消息都用`:gen_tcp.send/2`函数来发送。而从服务端发送至客户端的消息我们总是倾向于把它们当作Erlang Message来处理，因为这样处理起来比较直观。后面我们会看到，我们将通过设置TCP socket的`:active` option选项来控制发送至客户端的消息。
+所有的发向Server的消息都用`:gen_tcp.send/2`函数来发送。而从服务端发送至客户端的消息我们总是倾向于把它们当作Erlang Message来处理，因为这样处理起来比较直观。后面我们会看到，我们将通过设置TCP socket的`:active`option选项来控制发送至客户端的消息。
 
 我们通过传递host、port等参数至`:gen_tcp.connect/3`来建立与服务端的连接。默认情况下，调用connect函数的进程会被认为是这个tcp连接的“controlling process”，意思就是这个进程将会处理所有发到这个socket的tcp消息。
 
@@ -27,7 +27,7 @@ Elixir作为一门Erlang虚拟机上的语言，由于Erlang的设计风格和Er
 我们将使用`GenServer`作为我们TCP连接的接口。我们需要一个GenServer以便于我们在state中保持socket的状态和在所有消息通信中复用这个socket。
 
 #### 建立连接
-因为我们使用GenServer作为TCP连接的接口，所以我们一次只能在state的socket中维护单个连接的状态，我们希望它总是和Server保持连接的状态。最优的策略实在GenServer启动的时候来做连接的工作，具体是在init的回调函数中实现。`init/1`是在`GenServer.start_link/2`被调用的时候触发的函数，GenServer在init被调用前不会做多余的工作，所有是我们建立连接的最佳场所。
+因为我们使用GenServer作为TCP连接的接口，所以我们一次只能在state的socket中维护单个连接的状态，我们希望它总是和Server保持连接的状态。最优的策略实在GenServer启动的时候来做连接的工作，具体是在init的回调函数中实现。`init/1`是在`GenServer.start_link/2`被调用的时候触发的回调，GenServer在init被调用前不会做多余的工作，所有是我们建立连接的理想场所。
 ```
 defmodule Redis do
   use GenServer
@@ -51,7 +51,7 @@ end
 现在我们已经有了一个连接上Redis服务的GenServer了，现在让我们给Redis发送一些指令。
 
 ##### RESP PROTOCL
-这里需要简单提一下Redis的二进制协议，RESP：这是Redis用于编解码它的Requst/Reply的协议，[协议的细节](https://redis.io/topics/protocol)简单明了，如果你想了解更多，我建议你看看。为了这篇文章的中心目标，我们假设我们有了RESP的完全实现：它提供了encode/decode两个函数：
+这里需要简单提一下Redis的二进制协议，RESP：这是Redis用于编解码它的Requst/Reply的协议，[协议的细节](https://redis.io/topics/protocol)简单明了，如果你想了解更多，我建议你看看。为了这篇文章的中心目标，我们假设我们有了RESP的完全实现：它提供了`encode/decode`两个函数：
 - `Redis.RESP.encode/1`: 将list编码成redis command，例如:
 ```
 Redis.RESP.encode(["GET", "mykey"])
@@ -83,18 +83,20 @@ defmodule Redis do
   end
 end
 ```
-这段代码能顺利工作
+这段代码没啥瑕疵。
 ```
 {:ok, pid} = Redis.start_link()
 Redis.command(pid, ["SET", "mykey", 1])
 Redis.command(pid, ["GET", "mykey"])
 #=> 1
 ```
-... 但这里有个大问题
+... 但这里有个问题。
+
 #### 哪里有问题呢？
 长话短说：`:gen_tcp.recv/2`函数是阻塞的。
 
 这段代码能顺利工作的前提是这个GenServer只被单个Elixir进程调用。当一个进程想发送命令给Redis Server的时候会发生如下事件：
+
 1. Elixir进程调用GenServer的`command/2`命令，然后进程阻塞的等待结果
 2. GenServer向Redis Server发送指令然后阻塞在`:gen_tcp.recv/2`上
 3. Redis Server回复结果
@@ -103,7 +105,7 @@ Redis.command(pid, ["GET", "mykey"])
 你能看出问题出在哪里了吗？GenServer在等待Redis Server回复的过程中是阻塞的。当然在单个进程的情况下这样是没问题的，但当多个进程同时想通过GenServer跟Redis Server做交互的时候情况就会变得很糟糕。幸好，我们可以做一个更好的实现。
 
 #### 使用队列
-你可能知道这样一个事实，GenServer的handle_call/3函数可以不用立即返回结果，它可以先返回一个`{:noreply, state}`作为结果，然后通过`GenServer.reply/2`函数返回真实的结果给请求进程。
+你可能知道这样一个事实，GenServer的`handle_call/3`函数可以不用立即返回结果，它可以先返回一个`{:noreply, state}`作为应答，然后通过`GenServer.reply/2`函数返回真实的结果给请求进程。
 
 在客户端请求然后阻塞的等待结果的同时GenServer继续工作直到它有了对这个客户端的回复， 这样一种方法正式我们所需要的。
 
@@ -116,7 +118,7 @@ Redis.command(pid, ["GET", "mykey"])
 3. Redis Server回复一条tcp message给GenServer，GenServer以`{:tcp, socket, message}`的形式接收到
 4. GenServer在`handle_info/2`函数中处理这条消息，并回应调用的Elixir进程
 
-不难看出，从GenServer发出命令给Redis Server到它接收到Redis Server的回应这段时间内，GenServer是非阻塞的，它还能继续发送其他的命令给GenServer，这很棒！
+不难看出，从GenServer发出命令给Redis Server到它接收到Redis Server的回应这段时间内，GenServer是非阻塞的，它还能继续发送其他的命令给GenServer，Nice！
 
 剩下需要解决的问题就是，GenServer怎样回执给正确的调用进程：当GenServer接收到一条`{:tcp, ....}`的消息时，它怎么知道`GenServer.reply/2`函数该发给谁呢？ 我们知道Redis是严格按照fifo的顺序来应答的，我们可以利用一个简单的队列来把请求的进程存储起来。我们将在GenServer的state中维护一个队列，当进程请求的时候入队，当有应答到来的时候出队。
 
@@ -166,7 +168,7 @@ end
 ```
 
 ### 剧情转折
-上文描述的模式并不是我想出来的，很令人震惊对吧？我所形容的模式在一票Erlang和Elixir应用中非常常见。这个模式在任何需要连接tcp服务的场合(或者类似的场合)都表现的十分良好，它经常被用在数据库驱动，这也是我为啥选Redis来做例子的理由。
+上文描述的模式并不是我想出来的，很意外对吧？我所形容的模式在一票Erlang和Elixir应用中非常常见。这个模式在任何需要连接tcp服务的场合(或者类似的场合)都表现的十分良好，它经常被用在数据库驱动，这也是我为啥选Redis来做例子的理由。
 
 很多现实世界中的库都使用着我所描述的模式：举个例子，[eredis](https://github.com/wooga/eredis)(Erlang最常用的Redis驱动)就跟我们的例子很类似：看看这部分[代码注释](https://github.com/wooga/eredis/blob/770f828918db710d0c0958c6df63e90a4d341ed7/src/eredis_client.erl#L1-L21)，基本上就是这篇文章的总结。另外一个跟我们的模式大致相似的例子就是[PostgreSQL](https://github.com/ericmj/postgrex)和[MongoDB](https://github.com/ankhers/mongodb)的Elixir驱动。目前我正在为[OrientDB](https://orientdb.com/orientdb/)编写Elixir驱动，也使用的是这个模式。所以这个肯定是可行的。
 
@@ -176,7 +178,7 @@ end
 
 我们将继续愉快的忽略一系列可能发生的错误，例如，消息到来的时候遇到空队列(它会报一个`{{:value, val}, new_queue}`的模式匹配错误)，或是接收到不完整的TCP消息。但是在TCP连接中可能发生的一系列问题例如断线和超时这些我们是可以尝试解决的。
 
-我们可以自己手动的来处理这些异常，幸运的是，Elixir的核心开发者*James Fish*已经在他的类库[connection](https://github.com/fishcakez/connection)中做完了大部分工作。这个类库十分年轻，它已经被用在上文提到的[MongoDB驱动](https://github.com/ankhers/mongodb)和[OrientDB驱动](https://orientdb.com/orientdb/)之中了。
+我们可以自己手动的来处理这些异常，幸运的是，Elixir的核心开发者*James Fish*已经在他的库[connection](https://github.com/fishcakez/connection)中做完了大部分工作。这个类库十分年轻，它已经被用在上文提到的[MongoDB驱动](https://github.com/ankhers/mongodb)和[OrientDB驱动](https://orientdb.com/orientdb/)之中了。
 
 #### 使用Connection来处理连接
 这个库协议定义了一个名为`connection`的协议：这个协议所规定的API是GenServer协议的一个超集，所以它易于理解也容易整合进现有的项目。
