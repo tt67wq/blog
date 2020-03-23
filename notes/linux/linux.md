@@ -66,3 +66,7 @@ cmd | curl -F "c=@-" "http://fars.ee/"
 1. 字体文件放到~/.local/share/fonts/下
 2. 执行fc-cache -vf
 
+#### 祖安话API
+```
+curl https://nmsl.shadiao.app/api.php\?lang\=zh_cn
+```
