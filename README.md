@@ -3,7 +3,7 @@
 
 ## blogs
 1. [[译] Elixir中TCP连接处理技巧 -- Andrea Leopardi](https://github.com/tt67wq/blog/blob/master/blogs/Handling_TCP_connections_in_Elixir.md)
-2. [[译] Elixir, Poolboy, 和利特尔法则](https://github.com/tt67wq/blog/blob/master/blogs/elixir-poolboy-and-littles-law.md)
+2. [[译ing] Elixir, Poolboy, 和利特尔法则](https://github.com/tt67wq/blog/blob/master/blogs/elixir-poolboy-and-littles-law.md)
 
 
 
