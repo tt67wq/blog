@@ -72,5 +72,43 @@ end
 
 最后，调用`:square`接收一个数字然后在一秒钟后返回其平方数。我们也打印了一些辅助信息。这一秒钟的延迟在我们后续的实验中非常重要。
 
+### 启动Poolboy监控树
+
+当我们创建好了工作实例，就可以在应用中配置和启动Poolboy了。大多数情况下我们会在各自的监控树中配置，这里为了简单起见，我们在`application.ex`中声明。
+
+```
+defmodule MyApp.Application do
+  use Application
+
+  def start(_type, _args) do
+    children = [
+      :poolboy.child_spec(:square_worker, poolboy_config())
+    ]
+
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+
+  defp poolboy_config do
+    [
+      name: {:local, :square_worker},
+      worker_module: MyApp.SquareWorker,
+      size: 5,
+      max_overflow: 0
+    ]
+  end
+end
+```
+
+为了将Poolboy加入监控树，我们用了`:poolboy.child_spec/2`函数，传入一个唯一id作为第一个参数，和一系列配置作为第二个参数。在这个例子中，我们用了一个函数来返回配置信息，但是不一定非要这么做。我们看下每个配置参数的说明：
+
+- *name*: 一个2元素的元组，其中包含了`:global`, `:local`或 `:via`的标签和一个池的名字。好像除了`:local`其他的也不太会去用。其余的选项是将进程注册到全局的进程仓库或是某个自定的仓库中。
+- *worker_module*: 这是包含工作进程内容的模块名。在我们这个例子中，就是`MyApp.SquareWorker`。
+- *size*: 定义了常驻内存的worker数量。
+- *max_overflow*: 定义了当常驻进程不够时最多允许超载的进程数量。
+- *strategy*: `lifo`或是`fifo`，决定了归还的工作进程被放置在可用队列的队头还是队尾。`lifo`操作起来像个栈，`fifo`像个队列。默认是lifo。
+
+当工作进程和Poolboy配置都搞定了，让我们专注于它们的使用方法。
+
 
 原文链接: [Elixir, Poolboy, and Little's Law](https://samuelmullen.com/articles/elixir-poolboy-and-littles-law/?utm_campaign=elixir_radar_230&utm_medium=email&utm_source=RD+Station)
