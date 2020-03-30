@@ -111,4 +111,66 @@ end
 当工作进程和Poolboy配置都搞定了，让我们专注于它们的使用方法。
 
 
+### 工作进程的使用
+
+有两种使用Poolboy的方法：1) 人为的取出和归还worker；2) 利用Poolboy的事务函数。我们依次看看：
+
+#### 取出再归还worker
+
+取出和归还worker依靠的是poolboy的`checkout/3`和`checkin/2`两个函数。这里有个例子：
+```
+iex 1> worker_pid = :poolboy.checkout(:square_worker)
+#PID<0.187.0>
+iex 2> GenServer.call(worker_pid, {:square, 4})
+PID: #PID<0.187.0> - 16
+16
+iex 3> :poolboy.checkin(:square_worker, worker_pid)
+:ok
+```
+这里，我们首先做的就是从池`square_worker`(pid代指GenServer进程)中"取出"一个worker。然后我们调用`GenServer.call/3`函数，传入worker的pid和所需要的参数。一旦调用GenServer完成了，我们就将worker归还至`:square_worker`池。
+
+我们的池子被设置成能容纳5个worker。那当我们第6次取出的时候会发生什么事情呢？如果你做个实验，然后等个5秒钟，你会看到下面的报错信息：
+```
+** (exit) exited in: :gen_server.call(:worker, {:checkout, #Reference<0.797852558.3545497601.41814>, true}, 5000)
+    ** (EXIT) time out
+    (stdlib) gen_server.erl:223: :gen_server.call/3
+    (poolboy) /Users/samullen/sandbox/elixir/my_app/deps/poolboy/src/poolboy.erl:63: :poolboy.checkout/3
+```
+你也许在期待Poolboy拒绝你的这次请求，但是它并没有。相反，它将其放入队列中等待有worker被释放。由于Poolboy跟所有的GenServer一样有5秒的超时时间，这个进程在超时后崩溃了。这里有几种解决的办法：
+
+1. 提高取出请求的延迟时间限制
+2. 当池中没有可用worker时，阻塞请求的进程
+3. 在配置中增加池的可用worker数量
+4. 在配置文件中加入过载的配置
+
+为了增加超时时间，你仅仅需要在取出worker时加入一个阻塞时间参数：
+```
+iex 4> worker_pid = :poolboy.checkout(:square_worker, true, 20_000)
+```
+在某些情况下提升超时时间时有效的，但是这种方法感觉很脏。
+
+除此之外，你可以为`block`参数传入`false`，然后手动的处理。你可以按照这个例程来编写：
+```
+def squarer(x) do
+  case :poolboy.checkout(:square_worker, false) do
+    :full ->
+      Process.sleep 100
+      squarer(x)
+
+    worker_pid ->
+      GenServer.call(worker_pid, {:square, x})
+      :poolboy.checkin(:square_worker, worker_pid)
+  end
+end
+```
+
+另外两个选项，`:size`和`:max_overflow`，应该就是字面意思了。
+
+就像C语言处理内存请求一般，人为的取出和归还worker有潜在的出错可能。虽然不会造成内存泄漏，但你的代码会迅速的耗尽池资源然后挂掉。谢天谢地，这比在C语言中追踪内存泄漏要容易多了。
+
+如果每次想使用池资源的时候都要`checkout`和`checkin`似乎操作有点多，你可以使用Poolboy的`transaction/2`函数。
+
+
+-----
+
 原文链接: [Elixir, Poolboy, and Little's Law](https://samuelmullen.com/articles/elixir-poolboy-and-littles-law/?utm_campaign=elixir_radar_230&utm_medium=email&utm_source=RD+Station)
