@@ -170,6 +170,79 @@ end
 
 如果每次想使用池资源的时候都要`checkout`和`checkin`似乎操作有点多，你可以使用Poolboy的`transaction/2`函数。
 
+#### 事务
+
+学习Poolboy事务的最好方法就是类比[数据库的事务](https://en.wikipedia.org/wiki/Database_transaction)。它们"使工作具有了原子性，...，它们会独立可靠的运行，不依赖其他的事务。"，取出和归还的动作已经帮你处理好了。你只需要负责事务部分的逻辑。
+
+这就是事务的模样：
+
+```
+:poolboy.transaction(:square_worker, fn pid ->
+  GenServer.call(pid, {:square, 4})
+end)
+```
+
+有了这些知识，我们可以用Poolboy在5个实例的工作池中做平方计算。
+
+```
+defmodule MyApp.Tester do
+  def run do
+    1..25
+    |> Enum.map(&spawn_workers/1)
+    |> Enum.map(&Task.await/1)
+  end
+
+  def spawn_workers(i) do
+    Task.async(fn ->
+      :poolboy.transaction(:square_worker, fn pid ->
+        GenServer.call(pid, {:square, i})
+      end)
+    end)
+  end
+end
+```
+
+在上面的代码中，我们用`Task`模块去加载新的进程，每个进程都使用`:poolboy.transaction/2`函数来计算输入值的平方。尽管提供了5个工作GenServer，如果我们想实现并发，我们还是需要用`Task.async/1`(甚至`spawn/1`)。
+
+一旦我们对参数Map调用了`Task.async/1`，我们就必须用`Task.await/1`等待所有的任务完成。
+
+运行这段代码，我们会看到以下的结果输出，一次输出5行：
+```
+iex [19:18 :: 1] > MyApp.Tester.run
+PID: #PID<0.190.0> - 1
+PID: #PID<0.189.0> - 4
+PID: #PID<0.187.0> - 16
+PID: #PID<0.188.0> - 9
+PID: #PID<0.186.0> - 25
+PID: #PID<0.187.0> - 36
+PID: #PID<0.188.0> - 49
+PID: #PID<0.189.0> - 100
+PID: #PID<0.190.0> - 64
+PID: #PID<0.186.0> - 81
+PID: #PID<0.186.0> - 144
+PID: #PID<0.188.0> - 169
+PID: #PID<0.190.0> - 225
+PID: #PID<0.189.0> - 196
+PID: #PID<0.187.0> - 121
+PID: #PID<0.186.0> - 289
+PID: #PID<0.187.0> - 256
+PID: #PID<0.188.0> - 361
+PID: #PID<0.189.0> - 324
+PID: #PID<0.190.0> - 400
+PID: #PID<0.186.0> - 441
+PID: #PID<0.187.0> - 484
+PID: #PID<0.188.0> - 529
+PID: #PID<0.190.0> - 625
+PID: #PID<0.189.0> - 576
+[1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256, 289,
+ 324, 361, 400, 441, 484, 529, 576, 625]
+iex [19:18 :: 2] >
+
+```
+
+注意到GenServer的默认超时时间，如果我们把`1..25`换成`1..26`会发生什么？如果你回答："服务会宕掉，邮箱里的消息都会丢失"，那么恭喜你答对了。
+
+怎样处理这个问题呢？不像Poolboy的`checkin/checkout`函数，`transaction/2`函数并没有提供一个`:full`信号的回调。我们只能提高进程数量。但是提高到多少呢？
 
 -----
 
