@@ -244,6 +244,57 @@ iex [19:18 :: 2] >
 
 怎样处理这个问题呢？不像Poolboy的`checkin/checkout`函数，`transaction/2`函数并没有提供一个`:full`信号的回调。我们只能提高进程数量。但是提高到多少呢？
 
+## 利特尔法则
+
+想要算出究竟需要多少个进程，我们需要两个信息：数据的到达率和平均的消费时间。这个公式由John Little提出，"在一个静止系统中，平均消费者的数量等于平均到达率乘以每个消费者在耗费的平均系统时间。"([利特尔法则](https://en.wikipedia.org/wiki/Little%27s_law))。公式如下：
+
+```
+L = λW
+```
+
+- L: 静止系统中消费者数量。即队列中元素数量。
+- λ: 到达率或单位时间吞吐量。
+- W: 队列中的平均等待时间。
+
+在我们的例子中，我们知道`W`是1秒钟，因为那是我们传给`Process.sleep/1`函数的值。不幸的是，`λ`值目前还是个未知数，因为传一个范围值给`Enum.map/2`函数的速度接近无穷大。考虑到在现实世界中我们不需要处理无限的吞吐量，所以我们对我们的测试代码做一下微调，让它变的有意义。
+
+```
+defmodule MyApp.Tester do
+  def run do
+    1..100
+    |> Stream.map(fn i ->
+      Process.sleep(100)
+      spawn_workers(i)
+    end)
+    |> Enum.to_list()
+    |> Enum.map(&Task.await/1)
+  end
+
+  def spawn_workers(i) do
+    Task.async(fn ->
+      :poolboy.transaction(:worker, fn pid ->
+        GenServer.call(pid, {:square, i})
+      end)
+    end)
+  end
+end
+```
+
+在通过往流水线中加入`Stream.map/2`函数和`Enum.to_list/1`函数，我们把到达率降低到了10(每100ms到达一个)。由于我们给到达率加上了一个延迟，我们把请求数量从25上调到100也就说的通了。现在对单个进程来说公式是这样的：
+```
+10 = 10 * 1
+```
+
+由于我们池中有5个worker，我们需要修改下`W`参数，即把平均等待时间改成0.2(1/5=0.2)。
+```
+2 = 10 * 0.2
+```
+现在我们在请求队列中始终有两个元素。问题在于，这个是否足够限制我们在5秒的超时范围内？我们可以通过把`L`和`W`相乘得到，即2 * 0.2。结果为0.4，是元素在队列中等待时间的两倍，所以说队列会持续增长直到超时时间到达。如果你在新代码中运行`Tester.run/0`，你会发现在第56个请求的时候挂掉。
+
+我们现在有3个选择：如果我们对我们能建立的链接数量不做约束，我们可以把池规模拓展到10，保持队列中等待时间(`W`)和到达率(`λ`)不变。或者，如果我们对链接数量做了限制，我们可以专注于提高元素在队列中等待的时间(`W`)，最后也是通常我们不想去做的，降低我们接受请求的速度。
+
+当我们把池的规模扩展到10然后再运行`Tester.run/0`，我们达到了平衡，能够成功输出100个数的平方。
+
 -----
 
 原文链接: [Elixir, Poolboy, and Little's Law](https://samuelmullen.com/articles/elixir-poolboy-and-littles-law/?utm_campaign=elixir_radar_230&utm_medium=email&utm_source=RD+Station)
