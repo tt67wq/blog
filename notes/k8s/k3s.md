@@ -12,6 +12,7 @@ INSTALL_K3S_SKIP_START=true ./install.sh
 ```
 
 ### 加入K3S
+TOKEN位置 `/var/lib/rancher/k3s/server/node-token`
 ```
 k3s_url="https://k3s-master:6443"
 k3s_token="xxx"

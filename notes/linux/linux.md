@@ -58,7 +58,7 @@ cmd | curl -F "c=@-" "http://fars.ee/"
 #### Linux硬件信息
 ```
 name -a # 查看内核/操作系统/CPU信息
-ead -n 1 /etc/issue # 查看操作系统版本
+read -n 1 /etc/issue # 查看操作系统版本
 cat /proc/cpuinfo # 查看CPU信息
 hostname # 查看计算机名
 lspci -tv # 列出所有PCI设备
