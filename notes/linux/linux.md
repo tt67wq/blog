@@ -5,6 +5,11 @@
 sudo pacman-mirrors -i -c China -m rank
 ```
 
+#### ZSH安装脚本
+```
+https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh
+```
+
 #### 获取自己的IP
 ```
 curl https://pv.sohu.com/cityjson
