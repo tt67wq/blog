@@ -11,6 +11,7 @@
 1. [[译]How to Use gRPC in Elixir](https://blog.appsignal.com/2020/03/24/how-to-use-grpc-in-elixir.html?utm_campaign=elixir_radar_233&utm_medium=email&utm_source=RD+Station)
 2. [[译]Sharing Protobuf schemas across services](https://andrealeopardi.com/posts/sharing-protobuf-schemas-across-services/)
 3. [[译]Using C from Elixir with NIFs](https://andrealeopardi.com/posts/using-c-from-elixir-with-nifs/)
+4. [[译]Building a Small JSON Endpoint With Plug, Cowboy and Poison](https://dev.to/jonlunsford/elixir-building-a-small-json-endpoint-with-plug-cowboy-and-poison-1826)
 
 
 
