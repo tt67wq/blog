@@ -32,5 +32,153 @@
   
 我们确实为这个准备了一个非常简单的例子，在选择工具和投入产出之前充分理解你的需求是一件非常重要的事情。
 
+-----
+
+#### 1. 创建一个新的，被监控树监控的，Elixir应用
+
+```
+$ mix new webhook_processor --sup
+$ cd webhook_processor
+```
+
+`--sup`会创建一个OTP平台的应用。我们的应用会在崩溃后自动重启，但是Erlang虚拟机的崩溃不会被重启。
+
+#### 2. 添加Plug，Cowboy和Poison作为依赖
+```
+# ./mix.exs
+defmodule WebhookProcessor.MixProject do
+  use Mix.Project
+
+  def project do
+    [
+      app: :webhook_processor,
+      version: "0.1.0",
+      elixir: "~> 1.7",
+      start_permanent: Mix.env() == :prod,
+      deps: deps()
+    ]
+  end
+
+  # Run "mix help compile.app" to learn about applications.
+  def application do
+    [
+      # Add :plug_cowboy to extra_applications
+      extra_applications: [:logger, :plug_cowboy],
+      mod: {WebhookProcessor.Application, []}
+    ]
+  end
+
+  # Run "mix help deps" to learn about dependencies.
+  defp deps do
+    [
+      {:plug_cowboy, "~> 2.0"}, # This will pull in Plug AND Cowboy
+      {:poison, "~> 3.1"} # Latest version as of this writing
+    ]
+  end
+end
+
+```
+注意，我们添加了`plug_cowboy`作为Plug和Cowboy单独的依赖。我们也需要在`extra_applications`中添加`:plug_cowboy`。
+
+#### 3. Mix deps.get
+```
+Mix deps.get
+```
+
+#### 4. 补全application.ex
+```
+# ./lib/webhook_processor/application.ex
+defmodule WebhookProcessor.Application do
+  @moduledoc "OTP Application specification for WebhookProcessor"
+
+  use Application
+
+  def start(_type, _args) do
+    # List all child processes to be supervised
+    children = [
+      # Use Plug.Cowboy.child_spec/3 to register our endpoint as a plug
+      Plug.Cowboy.child_spec(
+        scheme: :http,
+        plug: WebhookProcessor.Endpoint,
+        options: [port: 4001]
+      )
+    ]
+
+    # See https://hexdocs.pm/elixir/Supervisor.html
+    # for other strategies and supported options
+    opts = [strategy: :one_for_one, name: WebhookProcessor.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end
+
+```
+
+#### 5. 实现WebhookProcessor.Endpoint
+```
+# ./lib/webhook_processor/endpoint.ex
+defmodule WebhookProcessor.Endpoint do
+  @moduledoc """
+  A Plug responsible for logging request info, parsing request body's as JSON,
+  matching routes, and dispatching responses.
+  """
+
+  use Plug.Router
+
+  # This module is a Plug, that also implements it's own plug pipeline, below:
+
+  # Using Plug.Logger for logging request information
+  plug(Plug.Logger)
+  # responsible for matching routes
+  plug(:match)
+  # Using Poison for JSON decoding
+  # Note, order of plugs is important, by placing this _after_ the 'match' plug,
+  # we will only parse the request AFTER there is a route match.
+  plug(Plug.Parsers, parsers: [:json], json_decoder: Poison)
+  # responsible for dispatching responses
+  plug(:dispatch)
+
+  # A simple route to test that the server is up
+  # Note, all routes must return a connection as per the Plug spec.
+  get "/ping" do
+    send_resp(conn, 200, "pong!")
+  end
+
+  # Handle incoming events, if the payload is the right shape, process the
+  # events, otherwise return an error.
+  post "/events" do
+    {status, body} =
+      case conn.body_params do
+        %{"events" => events} -> {200, process_events(events)}
+        _ -> {422, missing_events()}
+      end
+
+    send_resp(conn, status, body)
+  end
+
+  defp process_events(events) when is_list(events) do
+    # Do some processing on a list of events
+    Poison.encode!(%{response: "Received Events!"})
+  end
+
+  defp process_events(_) do
+    # If we can't process anything, let them know :)
+    Poison.encode!(%{response: "Please Send Some Events!"})
+  end
+
+  defp missing_events do
+    Poison.encode!(%{error: "Expected Payload: { 'events': [...] }"})
+  end
+
+  # A catchall route, 'match' will match no matter the request method,
+  # so a response is always returned, even if there is no route to match.
+  match _ do
+    send_resp(conn, 404, "oops... Nothing here :(")
+  end
+end
+
+```
+这些代码看上去很多，但是大部分都是注释。主旨就是利用`Plug.Router`中的`get`和`post`宏来生成路由。这个模块本身就是个Plug，它定义了自身的plug管道。注意，为了解析请求和分发回执，`match`和`dispatch`是必须的。`Pipeline`是个关键概念，plug的排序决定了操作的顺序。注意到match是在我们的parser之前声明的，这就意味着在有路由匹配之前，我们不会做任何解析工作。如果这个顺序被颠倒，就会出现不管有无路由匹配都去做请求解析的情况。点击Plug.Router的[文档](https://hexdocs.pm/plug/Plug.Router.html#content)了解更多。
+
+
 ----
 原文链接: [Building a Small JSON Endpoint With Plug, Cowboy and Poison](https://dev.to/jonlunsford/elixir-building-a-small-json-endpoint-with-plug-cowboy-and-poison-1826)
