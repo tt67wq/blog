@@ -6,7 +6,7 @@
 ## blogs
 1. [[译] Elixir中TCP连接处理技巧 -- Andrea Leopardi](https://github.com/tt67wq/blog/blob/master/blogs/Handling_TCP_connections_in_Elixir.md)
 2. [[译] Elixir, Poolboy, 和利特尔法则](https://github.com/tt67wq/blog/blob/master/blogs/elixir-poolboy-and-littles-law.md)
-3. [[译]Building a Small JSON Endpoint With Plug, Cowboy and Poison](https://dev.to/jonlunsford/elixir-building-a-small-json-endpoint-with-plug-cowboy-and-poison-1826)
+3. [[译] Building a Small JSON Endpoint With Plug, Cowboy and Poison](https://dev.to/jonlunsford/elixir-building-a-small-json-endpoint-with-plug-cowboy-and-poison-1826)
 
 ## TODO
 1. [[译]How to Use gRPC in Elixir](https://blog.appsignal.com/2020/03/24/how-to-use-grpc-in-elixir.html?utm_campaign=elixir_radar_233&utm_medium=email&utm_source=RD+Station)
