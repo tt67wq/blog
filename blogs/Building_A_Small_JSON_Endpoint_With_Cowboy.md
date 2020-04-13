@@ -179,6 +179,139 @@ end
 ```
 这些代码看上去很多，但是大部分都是注释。主旨就是利用`Plug.Router`中的`get`和`post`宏来生成路由。这个模块本身就是个Plug，它定义了自身的plug管道。注意，为了解析请求和分发回执，`match`和`dispatch`是必须的。`Pipeline`是个关键概念，plug的排序决定了操作的顺序。注意到match是在我们的parser之前声明的，这就意味着在有路由匹配之前，我们不会做任何解析工作。如果这个顺序被颠倒，就会出现不管有无路由匹配都去做请求解析的情况。点击Plug.Router的[文档](https://hexdocs.pm/plug/Plug.Router.html#content)了解更多。
 
+#### 6. 让端点可配置
+
+```
+# ./lib/webhook_processor/application.ex
+defmodule WebhookProcessor.Application do
+  @moduledoc "OTP Application specification for WebhookProcessor"
+
+  use Application
+
+  def start(_type, _args) do
+    # List all child processes to be supervised
+    children = [
+      # Use Plug.Cowboy.child_spec/3 to register our endpoint as a plug
+      Plug.Cowboy.child_spec(
+        scheme: :http,
+        plug: WebhookProcessor.Endpoint,
+        # Set the port per environment, see ./config/MIX_ENV.exs
+        options: [port: Application.get_env(:webhook_processor, :port)]
+      )
+    ]
+
+    # See https://hexdocs.pm/elixir/Supervisor.html
+    # for other strategies and supported options
+    opts = [strategy: :one_for_one, name: WebhookProcessor.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end
+
+```
+
+我们将硬编码的端口号换成了环境变量，这让我们可以在任意环境中运行webhook。最后我们为每个`MIX_ENV`创建一份配置文件：
+```
+#./config/config.exs
+
+# This file is responsible for configuring your application
+# and its dependencies with the aid of the Mix.Config module.
+use Mix.Config
+
+import_config "#{Mix.env()}.exs"
+
+-------------------
+
+# ./config/dev.exs
+
+use Mix.Config
+
+config :webhook_processor, port: 4001
+
+-------------------
+
+# ./config/test.exs
+
+use Mix.Config
+
+config :webhook_processor, port: 4002
+
+-------------------
+
+# ./config/prod.exs
+
+use Mix.Config
+
+config :webhook_processor, port: 80
+
+```
+#### 7. 测试
+
+```
+# ./test/webhook_processor/endpoint_test.exs
+defmodule WebhookProcessor.EndpointTest do
+  use ExUnit.Case, async: true
+  use Plug.Test
+
+  @opts WebhookProcessor.Endpoint.init([])
+
+  test "it returns pong" do
+    # Create a test connection
+    conn = conn(:get, "/ping")
+
+    # Invoke the plug
+    conn = WebhookProcessor.Endpoint.call(conn, @opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "pong!"
+  end
+
+  test "it returns 200 with a valid payload" do
+    # Create a test connection
+    conn = conn(:post, "/events", %{events: [%{}]})
+
+    # Invoke the plug
+    conn = WebhookProcessor.Endpoint.call(conn, @opts)
+
+    # Assert the response
+    assert conn.status == 200
+  end
+
+  test "it returns 422 with an invalid payload" do
+    # Create a test connection
+    conn = conn(:post, "/events", %{})
+
+    # Invoke the plug
+    conn = WebhookProcessor.Endpoint.call(conn, @opts)
+
+    # Assert the response
+    assert conn.status == 422
+  end
+
+  test "it returns 404 when no route matches" do
+    # Create a test connection
+    conn = conn(:get, "/fail")
+
+    # Invoke the plug
+    conn = WebhookProcessor.Endpoint.call(conn, @opts)
+
+    # Assert the response
+    assert conn.status == 404
+  end
+end
+
+```
+
+测试代码相当简单，但是它保证了我们的服务是达到预期的。关于这些测试唯一可争论的点就是返回码，而不是事件执行时的副作用。记住，测试代码总是要触达代码的边沿，而不是超过它，除非你是在写集成测试。
+
+
+### 总结
+
+只用了很少的工作量，我们构建了一个小而强大的后端服务。多谢Cowboy，你能够在单个服务器上处理比你所需多得多的链接，我们只需要为这些优点付出很小的代价。
+
+如往常一样，这些代码都在[仓库](https://github.com/jonlunsford/webhook_processor)中开源。
+
 
 ----
 原文链接: [Building a Small JSON Endpoint With Plug, Cowboy and Poison](https://dev.to/jonlunsford/elixir-building-a-small-json-endpoint-with-plug-cowboy-and-poison-1826)
