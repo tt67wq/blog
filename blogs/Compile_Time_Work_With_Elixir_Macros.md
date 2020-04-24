@@ -40,5 +40,66 @@ iex> ast |> Macro.expand(__ENV__) |> Macro.to_string
 展开一个宏的意思是指执行宏内的代码，将宏的调用替换为它返回的抽象语法树。展开的过程发生在编译阶段：一个宏是在编译阶段被执行，然后返回它递归生成的代码，这些代码在只在运行时被执行。我们刚好可以利用这一点！我们可以写一个宏，它在不会翻译它接收的抽象语法树，而是在编译阶段利用抽象语法树来执行某些操作。
 
 
+## 编译时操作
+
+通常来说，宏被描述为接收代码返回代码的函数；在这个描述中，我们把宏看成一种函数。但是，我们也可以将函数函数定义为一种宏：每个函数只是在编译时啥都不做的宏而已。
+
+比如我们有以下代码：
+
+```
+defmodule MacroPhilosophy do
+  def hello(name) do
+    "Hello #{name}!"
+  end
+end
+```
+
+```
+iex> hello "Elixir"
+"Hello Elixir!"
+```
+
+我们可以将`hello/1`函数改写成一个宏，除了需要`require`一下`MacroPhilosophy`这个模块以外，不用修改所有依赖它的代码。我们只需要将`hello/1`修改为代码引用而非代码执行：幸好`quote`函数有`:bind_quoted`选项，我们可以利用这一点。
+
+```
+defmodule MacroPhilosophy do
+  defmacro hello(name) do
+    quote bind_quoted: binding() do
+      "Hello #{name}!"
+    end
+  end
+end
+```
+
+```
+iex> require MacroPhilosophy
+iex> hello "Elixir"
+"Hello Elixir"
+```
+
+如你所见，函数体部分在函数实现和宏实现中是一致的。
+
+这让我们可以用另外一个视角来看待函数，同时也强调了宏的重要特点：它们可被用来做编译时工作。我们可以在编译时的宏内部执行任何代码，只要我们能返回合法的代码。同时，在我们返回代码之前的所有工作都会在运行时消失不见。Poof!
+
+
+### 一个没用的表达式记数宏
+
+为了保持例子和现实世界毫无关联的优良传统，我们编写一个宏来日志打印Elixir的表达式数量：
+```
+defmodule UselessExamplesAreFun do
+  defmacro log_number_of_expressions(code) do
+    {_, counter} = Macro.prewalk code, 0, fn(expr, counter) ->
+      {expr, counter + 1}
+    end
+
+    IO.puts "You passed me #{counter} expressions/sub-expressions"
+
+    code
+  end
+end
+```
+
+
+
 ---
 原文链接：[compile-time-work-with-elixir-macros](https://andrealeopardi.com/posts/compile-time-work-with-elixir-macros/)
