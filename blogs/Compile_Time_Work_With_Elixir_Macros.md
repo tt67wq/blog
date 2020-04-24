@@ -99,7 +99,7 @@ defmodule UselessExamplesAreFun do
 end
 ```
 
-
+让我们简单看一下这个宏，我们用`Macro.walk/3`函数来统计表达式数量。然后我们打印出这个数字：这就是我们编译时工作。最后我们返回参数中的代码(抽象语法树)。这个宏在运行时实际上啥也不干：它甚至不会在编译好的代码中留下痕迹。这是个性能友好的特性，因为编译时的日志代码消失不见了。
 
 ---
 原文链接：[compile-time-work-with-elixir-macros](https://andrealeopardi.com/posts/compile-time-work-with-elixir-macros/)
