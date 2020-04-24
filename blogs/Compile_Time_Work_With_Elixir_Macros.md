@@ -101,5 +101,25 @@ end
 
 让我们简单看一下这个宏，我们用`Macro.walk/3`函数来统计表达式数量。然后我们打印出这个数字：这就是我们编译时工作。最后我们返回参数中的代码(抽象语法树)。这个宏在运行时实际上啥也不干：它甚至不会在编译好的代码中留下痕迹。这是个性能友好的特性，因为编译时的日志代码消失不见了。
 
+### 一个现实世界的例子
+
+当我们在编写[gettext for elixir](https://github.com/elixir-gettext/gettext)的时候，José Valim建议我们使用这项技术，在那之后我意识到宏可以用来做编译时的工作。Gettext提供了名叫`mix gettext.extract`的任务用于提取源文件中的翻译写入到`。po`文件中。翻译动作就变成了带上字符串作为参数调用gettext宏。
+
+```
+# in lib/greetings.ex
+import MyApp.Gettext
+gettext "Hello people of Gotham!", "fr"
+```
+
+执行`mix gettext.extract`的结果会写入一个`.po`的文件中：
+```
+#: lib/greetings.ex:2
+msgid "Hello people of Gotham!"
+msgstr ""
+```
+
+大部分其他语言(例如Python)的gettext实现是解析代码然后寻找`gettext()`函数调用。
+
+
 ---
 原文链接：[compile-time-work-with-elixir-macros](https://andrealeopardi.com/posts/compile-time-work-with-elixir-macros/)
