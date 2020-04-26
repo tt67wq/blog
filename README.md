@@ -7,7 +7,7 @@
 1. [[译] Elixir中TCP连接处理技巧 -- Andrea Leopardi](https://github.com/tt67wq/blog/blob/master/blogs/Handling_TCP_connections_in_Elixir.md)
 2. [[译] Elixir, Poolboy, 和利特尔法则](https://github.com/tt67wq/blog/blob/master/blogs/elixir-poolboy-and-littles-law.md)
 3. [[译] Building a Small JSON Endpoint With Plug, Cowboy and Poison](https://github.com/tt67wq/blog/blob/master/blogs/Building_A_Small_JSON_Endpoint_With_Cowboy.md)
-4. [[译ing] Elixir宏与编译时骇入](https://github.com/tt67wq/blog/blob/master/blogs/Compile_Time_Work_With_Elixir_Macros.md)
+4. [[译] Elixir宏与编译时骇入](https://github.com/tt67wq/blog/blob/master/blogs/Compile_Time_Work_With_Elixir_Macros.md)
 
 
 
