@@ -118,7 +118,24 @@ msgid "Hello people of Gotham!"
 msgstr ""
 ```
 
-大部分其他语言(例如Python)的gettext实现是解析代码然后寻找`gettext()`函数调用。
+大部分其他语言(例如Python)的gettext实现是解析代码然后寻找`gettext()`函数调用。而在Elixir中，我们只需要在宏中注入这个字符串，然后重新编译展开这个宏来完成翻译工作。Awesome！
+
+这就是`gettext`函数定义的大致模样:
+```
+defmacro gettext(msgid, locale) do
+  extract(msgid)
+
+  quote do
+    translate(unquote(msgid), unquote(locale))
+  end
+end
+```
+
+当我们调用`extract/2`函数时，我们在重新编译之前将`msgid`注入到一个代理中。当编译工作完成后，我们将代理的状态导出即可。这一切在运行时不会有任何副作用：调用`gettext/2`就如同调用`translate/2`一样。
+
+## 总结
+
+深入了解宏和其工作机制是元编程，优化和理解Elixir代码的基础。在这篇文章中，我们实践了用宏来完成编译时工作。我们看到了一个非现实世界的例子和一个gettext项目中真实的例子。
 
 
 ---
