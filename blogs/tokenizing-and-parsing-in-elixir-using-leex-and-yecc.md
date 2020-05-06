@@ -34,6 +34,29 @@ iex> ListParser.parse("[1, 2, [:foo, [:bar]]]")
 
 根据这些基本语法来制作词法分析器不算复杂，但是`leex`大大简化了我们的工作，我们只需要编写十分简洁的语法就能写出我们的词法分析器。我们根据常规表达式来识别词法单元，我们可以将一个常规表达式与Erlang表达式关联来做到这一点。我曾提起过常规表达式并不能完全覆盖这个工作：由于语法分析有递归的属性，所以常规表达式并不适合，但是它们很适合做一个平坦结构的分离工作。
 
+`lexx`的语法规则如下：
+```
+Regular expression : Erlang code.
+```
+在"Erlang code"部分中，如果我们想词法分析器解析出这个标记，我们需要返回一个`{:token, value}`的元组。
+
+我们的词法分析器很简单：
+
+```
+Rules.
+
+[0-9]+   : {token, {int,  TokenLine, TokenChars}}.
+:[a-z_]+ : {token, {atom, TokenLine, TokenChars}}.
+\[       : {token, {'[',  TokenLine}}.
+\]       : {token, {']',  TokenLine}}.
+,        : {token, {',',  TokenLine}}.
+```
+
+我们返回`{:token, value}`来告诉`leex`我们对匹配上的标记感兴趣而且我们希望在词法分析的输出结果中看到这个标记。
+
+`TokenLine`和`TokenChars`是`leex`在Erlang表达式后面正则中维护的对象。这些变量存储了匹配到的标记值的行号和内容。
+
+我们总是使用二元或三元的元组作为标记，因为这是`yecc`的格式要求。如你所见，有时候我们对标记值感兴趣所以我们返回三元组，然而有时候标记本身就是标记值(比如逗号)，所以二元组就足够了。`TokenLine`是强制要求的，为了`yecc`能够准确分离错误信息。
 
 ------
 原文链接：[tokenizing-and-parsing-in-elixir-using-leex-and-yecc](https://andrealeopardi.com/posts/tokenizing-and-parsing-in-elixir-using-leex-and-yecc/)
