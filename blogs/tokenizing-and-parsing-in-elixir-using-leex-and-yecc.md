@@ -139,5 +139,50 @@ iex> tokens
 [{:"[", 1}, {:int, 1, 1}, {:",", 1}, {:atom, 1, :foo}, {:"]", 1}]
 ```
 
+## 语法分析
+
+我们现在有了一系列平铺开的token列表。我们想要给这些token赋予结构将其转换成Elixir中的列表对象就需要做语法分析。语法分析器依赖语法规则，而语法就是一系列确定这些token怎样被组织起来的规则。
+
+我们也可以手写一个语法分析器(要比手写一个词法分析要困难一点)，如果使用`yecc`就很简单，它让你可以编写一些声明式的语法，而且非常容易当作`leex`来使用。
+
+一点点题外话：到现在为止，你可能认为这些名字没太大意义。事实上是有的。它们都是受到了两个著名的词法和语法分析器(`lex`和`yacc`)的影响。说明了这些搞Erlang的人也不是完全疯了，是吧？
+
+言归正传，`yecc`的核心语法就是规则，如以下形式：
+
+```
+Left-hand side -> Right-hand side : Erlang expressions.
+```
+
+左手边是一类token的符号集，右手边是一个符号集或多个符号集。token的符号集有两类：终结符和非终结符。终结符就是不会再展开为其他符号集的token；非终结符就是可以递归的展开为其他符号集的token。
+
+举个例子， `:"["`或者`{atom, Atom}`就是终结符，而一个列表可以被`list`非终结符表示。
+
+```
+list -> '[' ']'.
+% or...
+list -> '[' elems ']'.
+
+% By the way, '%' is used for comments just like in Erlang.
+```
+如你所见，我们可以为每个符号集定义多个语法条款：而符号集可以采用这些条款中的任意一个值。
+
+`elems`本身也是一个非终结符。我们可以定义其为一个元素、一个标点或是一个元素列表：
+
+```
+elems -> elem.
+elems -> elem ',' elems.
+```
+
+`elems`符号可以是`elem`，`elem, elem`以此类推。
+
+`elem`本身也是个非终结符：它可以表示一个整数、一个原子、或一个列表。感慨下这里表示出列表的元素本身也可以是一个列表这一逻辑十分的优雅。
+
+```
+lem -> int.
+elem -> atom.
+elem -> list.
+```
+Beautiful！
+
 ------
 原文链接：[tokenizing-and-parsing-in-elixir-using-leex-and-yecc](https://andrealeopardi.com/posts/tokenizing-and-parsing-in-elixir-using-leex-and-yecc/)

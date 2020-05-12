@@ -60,6 +60,11 @@ cmd | curl -F "c=@-" "http://fars.ee/"
 1. 字体文件放到~/.local/share/fonts/下
 2. 执行fc-cache -vf
 
+#### 生成32位随机串
+```
+head -c 32 /dev/random | base64
+```
+
 #### Linux硬件信息
 ```
 name -a # 查看内核/操作系统/CPU信息
@@ -94,3 +99,5 @@ w # 查看活动用户
 id # 查看指定用户信息
 last # 查看用户登录日志
 ```
+
+
