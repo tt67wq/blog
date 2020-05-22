@@ -184,5 +184,84 @@ elem -> list.
 ```
 Beautiful！
 
+所有的非终结符都要在某个时间点上被翻译成终结符：你不能让某个非终结符一直不被展开。`yecc`要求你在文件头部声明哪些类是终结符，哪些类是非终结符。
+
+```
+Terminals '[' ']' ',' int atom.
+Nonterminals list elems elem.
+```
+
+你也需要声明一个*根符号*，这是一个初始点非终结符，用于生成所有的语法。在我们的例子中，就是`list`：
+
+```
+Rootsymbol list.
+```
+
+我们几乎要完成了，我们只需要将解析出的list转换成Elixir的list。我们可以在每个解析规则后面跟着的Erlang代码中做到这一点。在这些Erlang的代码中，我们有一些特殊的原子变量：`'$1'`, `'$2'`, `'$3'`这些。`yecc`会将这些变量替换成Erlang代码的返回值，并放置在类规则右手边的相同位置。我刚刚听到你说："What?!"；你是对的，这个在实践中更容易理解：
+
+```
+list ->
+  '[' ']' : []. % an empty list translate to, well, an empty list
+list ->
+  '[' elems ']' : '$2'. % the list is formed by its elements
+
+elems ->
+  elem : ['$1']. % single-element list (and base case for the recursion)
+elems ->
+  elem ',' elems : ['$1'|'$3']. % '$3' will be replaced recursively
+
+elem -> int  : extract_token('$1').
+elem -> atom : extract_token('$1').
+elem -> list : '$1'.
+
+% Yep, we can use Erlang code here as well.
+Erlang code.
+
+extract_token({_Token, _Line, Value}) -> Value.
+```
+
+完成了，我们的语法分析器长这样：
+
+```
+Nonterminals list elems elem.
+Terminals '[' ']' ',' int atom.
+Rootsymbol list.
+
+list -> '[' ']'       : [].
+list -> '[' elems ']' : '$2'.
+
+elems -> elem           : ['$1'].
+elems -> elem ',' elems : ['$1'|'$3'].
+
+elem -> int  : extract_token('$1').
+elem -> atom : extract_token('$1').
+elem -> list : '$1'.
+
+Erlang code.
+
+extract_token({_Token, _Line, Value}) -> Value.
+```
+
+我们现在可以从`yecc`文件生成一个Erlang文件，就像`lexx`一样：
+
+```
+iex> :yecc.file('list_parser.yrl')
+iex> c("list_parser.erl")
+iex> :list_parser.parse([{:"[", 1}, {:atom, 1, :foo}, {:"]", 1}])
+{:ok, [:foo]}
+```
+生效了！
+
+## 一起运行
+
+我们现在可以将词法分析器的输出直接输入给语法分析器：
+```
+iex> source = "[:foo, [1], [:bar, [2, 3]]]"
+iex> {:ok, tokens, _} = source |> String.to_charlist() |> :list_lexer.string
+iex> :list_parser.parse(tokens)
+{:ok, [:foo, [1], [:bar, [2, 3]]]}
+```
+Awesome！
+
 ------
 原文链接：[tokenizing-and-parsing-in-elixir-using-leex-and-yecc](https://andrealeopardi.com/posts/tokenizing-and-parsing-in-elixir-using-leex-and-yecc/)
