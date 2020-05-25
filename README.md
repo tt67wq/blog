@@ -8,7 +8,7 @@
 2. [[译] Elixir, Poolboy, 和利特尔法则](https://github.com/tt67wq/blog/blob/master/blogs/elixir-poolboy-and-littles-law.md)
 3. [[译] Building a Small JSON Endpoint With Plug, Cowboy and Poison](https://github.com/tt67wq/blog/blob/master/blogs/Building_A_Small_JSON_Endpoint_With_Cowboy.md)
 4. [[译] Elixir宏与编译时骇入](https://github.com/tt67wq/blog/blob/master/blogs/Compile_Time_Work_With_Elixir_Macros.md)
-
+5. [[译] 在Elixir中利用leex和yecc做词法分析和语法分析](https://github.com/tt67wq/blog/blob/master/blogs/tokenizing-and-parsing-in-elixir-using-leex-and-yecc.md)
 
 
 ## 联系方式
