@@ -259,9 +259,45 @@ iex> :list_parser.parse([{:"[", 1}, {:atom, 1, :foo}, {:"]", 1}])
 iex> source = "[:foo, [1], [:bar, [2, 3]]]"
 iex> {:ok, tokens, _} = source |> String.to_charlist() |> :list_lexer.string
 iex> :list_parser.parse(tokens)
-{:ok, [:foo, [1], [:bar, [2, 3]]]}
+{:ok, [:foo, [1], [:bar, [2, 3]]]}1
 ```
 Awesome！
+
+## Elixir集成
+
+手动从`.xrl`和`.yrl`文件中生成Erlang文件，然后再编译这些Erlang文件很快就变得枯燥无味。幸运的是，Mix工具可以帮你！
+
+Mix有"compiler"这么一个概念：对，它们就是你想象的东西，编译器。Mix提供了一个Erlang编译器，同时也提供了`:leex`和`:yecc`编译器。它们是默认启用的，你可以在Mix项目中调用`Mix.compilers\0`函数来看到它们：
+
+```
+iex> Mix.compilers()
+[:yecc, :leex, :erlang, :elixir, :app]
+```
+
+你只需要把`.xrl`和`.yrl`文件放在`src/`目录下，当项目被编译时，这些Erlang模块也会被编译出来。
+
+```
+mix new list_parser
+mkdir list_parser/src
+mv ./list_parser.yrl ./list_lexer.xrl ./list_parser/src/
+```
+
+现在，在目录`list_parser/lib/list_parser.ex`中：
+
+```
+defmodule ListParser do
+  @spec parse(binary) :: list
+  def parse(str) do
+    {:ok, tokens, _} = str |> to_charlist() |> :list_lexer.string()
+    {:ok, list} = :list_parser.parse(tokens)
+    list0
+  end
+end
+```
+
+## 还不确信
+
+所有这些可能听上去比较抽象，不过我保证`leex`和`yecc`有许许多多的使用例子。举个例子，最近我在为[GNU gettext](https://www.gnu.org/software/gettext/)写Elixir实现的时候需要一个[PO files](https://www.gnu.org/software/gettext/manual/html_node/PO-Files.html)的解析器。我用了`yecc`编写了一个解释器：结果生成了一个声明式，简洁易懂的语法，我超喜欢这个。我们没有直接使用`leex`而是决定自己写一个解析器，因为我需要的token标记相当简单，而用`leex`有点杀鸡用牛刀的感觉。
 
 ------
 原文链接：[tokenizing-and-parsing-in-elixir-using-leex-and-yecc](https://andrealeopardi.com/posts/tokenizing-and-parsing-in-elixir-using-leex-and-yecc/)
