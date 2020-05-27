@@ -298,9 +298,13 @@ defmodule ListParser do
 end
 ```
 
-## 还不确信
+## 还不确信?
 
 所有这些可能听上去比较抽象，不过我保证`leex`和`yecc`有许许多多的使用场景。举个例子，最近我在为[GNU gettext](https://www.gnu.org/software/gettext/)写Elixir实现的时候需要一个[PO files](https://www.gnu.org/software/gettext/manual/html_node/PO-Files.html)的解析器。我用了`yecc`编写了一个解释器：结果生成了一个声明式，简洁易懂的语法，我超喜欢这个。单元最后我们没有直接使用`leex`而是决定自己写一个解析器，因为我需要的token标记相当简单，而用`leex`有点杀鸡用牛刀的感觉。
+
+## 简单总结
+我们写了一个简单的词法和语法分析器，用于将表示Elixir列表的字符串转换成真正的Elixir列表。我们使用了`leex`生成了词法分析器，用`yecc`生成了语法分析器。我们只展示了这两个工具的基本用法，实际上它们还能做更复杂的事情(`yecc`还能生成LALR语法分析器)，这一部分，如往常一样，还是去看[文档](https://www.erlang.org/doc/apps/parsetools/)吧。
+
 
 ------
 原文链接：[tokenizing-and-parsing-in-elixir-using-leex-and-yecc](https://andrealeopardi.com/posts/tokenizing-and-parsing-in-elixir-using-leex-and-yecc/)
