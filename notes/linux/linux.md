@@ -52,7 +52,7 @@ cmd | curl -F "c=@-" "http://fars.ee/"
     missingok
     notifempty
     create 644 root root
-}              
+}
 ```
 
 #### Arch安装字体
