@@ -1,4 +1,4 @@
-## [译] Elixir Telemetry: 度量与报告 -- Samuel Mullen
+## [译] Elixir Telemetry: 采集与汇总 -- Samuel Mullen
 --------
 > 没有上下文的发言等同废话 -- D. A. Carson
 
@@ -11,7 +11,7 @@
 
 如果我们回头一步从多个时间点来观察汇总这些信息，我们会更加远视和成熟。毕竟，人们不太会在社交媒体上分享自己的失败和恐惧，至少不是真诚的，至于股市，它总是在衰退，牛市和熊市之间周期循环。
 
-在我的上篇文章[ The “How”s, “What”s, and “Why”s of Elixir Telemetry](https://samuelmullen.com/articles/the-hows-whats-and-whys-of-elixir-telemetry/)中，我们讨论了系统监控的价值，怎样使用[Telemetry](https://github.com/beam-telemetry/telemetry)以及采样错误的害处。然而，你可能还在纠结怎样处理采集到的数据。
+在我的上篇文章[The “How”s, “What”s, and “Why”s of Elixir Telemetry](https://samuelmullen.com/articles/the-hows-whats-and-whys-of-elixir-telemetry/)中，我们讨论了系统监控的价值，怎样使用[Telemetry](https://github.com/beam-telemetry/telemetry)以及采样错误的害处。然而，你可能还在纠结怎样处理采集到的数据。
 
 
 
