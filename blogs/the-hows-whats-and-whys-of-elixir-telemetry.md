@@ -28,5 +28,57 @@
 
 监控数字要比仅仅记录数字更重要；我们需要一个目标。"每当你看着打点数据的时候，问问自己：「基于这些信息我该做些什么？」"，如果你答不出来，那么你或许没必要太在意这些打点数据。
 
+### Telemetry入门
+
+先无视警告和劝退，我们来安装设置Telemetry。在项目中设置Telemetry分四步：1) 安装库；2) 将Telemetry的监控树"贴"进你的项目中；3) 定义好需要抓取的事件；4) "执行"这些事件。
+
+#### 第一步：安装Telemetry
+
+第一步当然是安装Telemetry库。我知道你懂怎么安装Elixir包，但是为了文章的完整性，将以下内容加入到`mix.exs`文件中的`deps/0`函数中。
+
+```
+defp deps() do
+  [
+    {:telemetry, "~> 0.4.0"}
+  ]
+end
+```
+*注意： [当前版本](https://hex.pm/packages/telemetry)可能跟你读这篇文章的时候有不一样了*
+
+#### 第二步：贴上Telemetry监控树
+
+一旦安装完成，下一步就是要启动Telemetry好让它开始干活。至少有两种方法去做这件事：1) 将Telemetry的裸代码加入`application.ex`文件中；2) 将逻辑包装进函数，在`application.ex`中调用它。
+
+##### 基础的Telemetry侵入
+
+这是在项目中启动Telemetry的最简单方法。在`application.ex`文件中，在启动函数之前加入这段代码：
+
+```
+defmodule MyApp.Application do
+  use Application
+
+  def start(_type, _args) do
+    children = [
+      ...
+    ]
+
+    # Start the Telemetry supervisor
+    :telemetry.attach("handler-id", [:event_name], &handle_event/4, nil)
+
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+
+  ...
+end
+```
+这里要注意几点：
+
+- `attach/4`函数只允许你抓取某一个事件。如果想抓取更多，请用`attach_many/4`函数
+- "handler-id"是一个唯一标识，"handler-id"必须唯一，如果有一个同名的handler存在，那么会返回一个`{error, already_exists}`元组
+- `[:event_name]`是一个用于匹配事件和启动回调函数的原子列表
+- `handle_event/4`就是回调函数
+- 最后一个参数是"配置"参数
+
 
 原文链接：[The “How”s, “What”s, and “Why”s of Elixir Telemetry](https://samuelmullen.com/articles/the-hows-whats-and-whys-of-elixir-telemetry/)
