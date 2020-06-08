@@ -80,5 +80,117 @@ end
 - `handle_event/4`就是回调函数
 - 最后一个参数是"配置"参数
 
+##### 包装骇入逻辑
+
+用不相干的逻辑污染你的Application模块不是一个好主意。相反，通用做法是将"贴入"函数提取到一个"插装器"模块中，然后在appliction模块中调用它。插装器模块会包含相干的事件句柄。
+
+```
+defmodule MyApp.Instrumenter do
+  def setup do
+    events = [
+      [:web, :request, :start],
+      [:web, :request, :success],
+      [:web, :request, :failure],
+    ]
+
+    :telemetry.attach_many("myapp-instrumenter", events, &handle_event/4, nil)
+  end
+
+  def handle_event([:web, :request, :start], measurements, metadata, _config) do
+    ...
+  end
+
+  def handle_event([:web, :request, :success], measurements, metadata, _config) do
+    ...
+  end
+
+  def handle_event([:web, :request, :failure], measurements, metadata, _config) do
+    ...
+  end
+end
+```
+
+然后，在你的`Application`模块中，使用`MyApp.Instrumenter.setup()`替代`:telemetry.attach/4`函数。
+
+```
+defmodule MyApp.Application do
+  use Application
+
+  def start(_type, _args) do
+    children = [
+      ...
+    ]
+
+    MyApp.Instrumenter.setup()
+
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+
+  ...
+end
+```
+
+#### 第三步：定义事件
+
+在第二步中，我们看到了基本的事件定义方法。我们没必要去命名函数为`handle_event/4`，但是这好像是约定做法。这个函数也接收四个参数：
+
+- 事件名称：用于匹配事件的原子列表。例如：
+
+```
+events = [
+  [:my_app, :repo_name, :query],     # to capture DB queries
+  [:my_app, :web_request, :success], # to capture HTTP 200s
+  [:my_app, :web_request, :failure], # to capture web errors
+]
+```
+
+- 度量：一些你感兴趣的度量用的数据结构。例如：
+
+```
+%{
+  decode_time: 6000,
+  query_time: 673000,
+  queue_time: 39000,
+  total_time: 718000
+}
+```
+
+- 元数据：具体某个Telemetry事件的信息。它可能是个`%Plug.Conn{}`对象，可能是个Ecto请求，一个栈追踪，或任何其他有用的信息。
+
+抓取数据是简单的，困难的部分在于怎样处理你抓来的数据。一个简单的选择是打印到日志中。
+
+```
+def handle_event([:web, :request, :start], measurements, metadata, _config) do
+    Logger.info inspect(measurements)
+    Logger.info inspect(metadata)
+end
+```
+
+另外一个选择就是存在ETS表中。这个在你需要处理大量数据又不用长期持久化的情况下尤其有用。一个相似的选择就是使用[telemetry_metrics](https://github.com/beam-telemetry/telemetry_metrics)库。最后，如果将数据存在第三方存储中会更有意义。例如[DataDog](https://www.datadoghq.com/), [NewRelic](https://newrelic.com/), [Scout](https://scoutapm.com)。
+
+
+#### 第四步：事件执行
+
+最后，在你的项目已经做好准备之后，剩下的事情就只剩发送打点数据了。你可以使用`execute/2`或`execute/3`函数来做到这一点。
+
+```
+:telemetry.execute(
+  [:my_app, :request, :success],
+  %{time_in_milliseconds: 42},
+  %{
+    request_path: conn.request_path,
+    status_code: conn.status
+  }
+)
+```
+
+当上述函数被执行的时候，匹配到`[:my_app, :request, :success]`的事件句柄会接收第二个参数作为打点，接收第三个参数作为元数据。你可以忽略元数据，如果你认为它不重要的话。
+
+
+#### 不用重复发明轮子
+
+现在似乎是一个很诱人的时间点去花时间构建你的事件打点，在你的代码中到处加上`execute`函数，但是，你要先确定你没有在重复劳动。多个Elixir库已经支持了Telemetry，可以减轻你的负担。让我们来看看两个常用的。
+
 
 原文链接：[The “How”s, “What”s, and “Why”s of Elixir Telemetry](https://samuelmullen.com/articles/the-hows-whats-and-whys-of-elixir-telemetry/)
