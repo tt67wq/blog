@@ -245,5 +245,75 @@ def handle_event([:my_app, :plug, :stop], %{duration: duration}, metadata, _conf
 end
 ```
 
+##### Ecto Telemetry支持
+
+为[Ecto](https://github.com/elixir-ecto/ecto)添加Telemtrey支持就像`Plug.Telemetry`一样简单。当你将Telemetry加入依赖之后，第一件可做的事情就是在仓库的配置文件中加入`:telemetry_prefix`这个配置。
+
+```
+config :my_app, Repo,
+  database: "my_app",
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  telemetry_prefix: [:my_app, :repo]
+```
+
+如果你不做这件事，Ecto会默认为`[:my_app, :repo]`。
+
+通过Telemetry依赖，Ecto会为每个Ecto请求触发事件`[:my_app, :repo, :query]`。为了抓取这些事件，将这个事件加入事件列表中并为它创建合适的处理句柄。
+
+```
+defmodule MyApp.Instrumenter do
+  def setup do
+    events = [
+      [:my_app, :plug, :start],
+      [:my_app, :plug, :stop],
+      [:my_app, :repo, :query], # <- Telemetry event id for Ecto
+    ]
+
+    :telemetry.attach_many("myapp-instrumenter", events, &handle_event/4, nil)
+  end
+
+  ...
+
+  def handle_event([:my_app, :repo, :query], measurements, metadata, _config) do
+    IO.inspect measurements
+    IO.inspect metadata
+  end
+end
+```
+
+明确一下，处理`[:my_app, :repo, :query]`会抓取所有的Ecto请求，这或许不是你想要的。为了更细粒度的控制哪些请求会被抓取，你可以将`telemetry_event: [:my_app, :repo, :named_query]`加入到你的触发事件中。然后再加入相应的处理句柄。
+
+```
+# DB Query
+Repo.get(User, 2112, telemetry_event: [:my_app, :repo, :user_get])
+
+# Instrumenter
+events = [
+   ...
+  [:my_app, :repo, :user_get]
+  ...
+]
+
+...
+
+def handle_event([:my_app, :repo, :user_get], measurements, metadata, _config) do
+  IO.inspect measurements
+  IO.inspect metadata
+end
+```
+
+不像`Plug.Telemetry`，Ecto里的`measurements`都是以毫秒为单位，而且包含更多的细节：
+
+```
+%{
+  decode_time: 6000,
+  query_time: 673000,
+  queue_time: 39000,
+  total_time: 718000
+}
+```
+
 
 原文链接：[The “How”s, “What”s, and “Why”s of Elixir Telemetry](https://samuelmullen.com/articles/the-hows-whats-and-whys-of-elixir-telemetry/)
