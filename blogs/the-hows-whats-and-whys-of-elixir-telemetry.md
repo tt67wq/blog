@@ -192,5 +192,58 @@ end
 
 现在似乎是一个很诱人的时间点去花时间构建你的事件打点，在你的代码中到处加上`execute`函数，但是，你要先确定你没有在重复劳动。多个Elixir库已经支持了Telemetry，可以减轻你的负担。让我们来看看两个常用的。
 
+##### Plug.Telemetry
+
+[Plug](https://github.com/elixir-plug/plug)的v1.8版本已经有了Telemetry的支持，只要在项目依赖中加入Telemtry，你将自动的载入它预设的事件。
+
+当Telemetry安装好之后，你需要将`Plug.Telemetry`的插头加入相关的流水线中让其开始发送事件。举个例子：
+
+```
+defmodule MyApp.Router do
+  use MyAppWeb, :router
+
+  pipeline :browser do
+    ...
+    plug Plug.Telemetry, event_prefix: [:my_app, :plug]
+    ...
+  end
+
+  ...
+end
+```
+
+通过流水线中的这是行代码，所有使用了这个流水线的plug或controller都将触发两个事件：`:start`和`:stop`。为了收集这两个事件，你需要将它们加入到你的"插装器"模块中。
+
+```
+events = [
+  ...
+  [:my_app, :plug, :start], # Captures the time the request began
+  [:my_app, :plug, :stop],  # Captures the duration the request took
+  ...
+]
+```
+
+`:start`事件在事件发生瞬间抓取了一个度量：`:time`。`:stop`事件却抓取了stop和start事件发生的时间差。在任何场景下-至少是在Mac下-，时间的单位是纳秒。你可以利用`System.convert_time_unit/3`函数将其转换成更容易管理的单位。你该注意到，这两个事件的`metadata`值都是请求的`%Plug.Conn{}`值。
+
+```
+System.convert_time_unit(duration, :nano_seconds, :milli_seconds)
+```
+
+最后一件事就是定义你的事件句柄。这就是你想干的事情：
+
+```
+def handle_event([:my_app, :plug, :start], %{time: time}, metadata, _config) do
+  time = System.convert_time_unit(time, :nano_seconds, :milli_seconds)
+
+  # Logic to handle :start event
+end
+
+def handle_event([:my_app, :plug, :stop], %{duration: duration}, metadata, _config) do
+  duration = System.convert_time_unit(duration, :nano_seconds, :milli_seconds)
+
+  # Logic to handle :stop event
+end
+```
+
 
 原文链接：[The “How”s, “What”s, and “Why”s of Elixir Telemetry](https://samuelmullen.com/articles/the-hows-whats-and-whys-of-elixir-telemetry/)
