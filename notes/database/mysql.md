@@ -13,3 +13,14 @@ FROM
 WHERE
     table_schema = DATABASE() and table_name='xxx';
 ```
+
+#### 文本体积
+
+```
+      Type | Maximum length
+-----------+-------------------------------------
+  TINYTEXT |           255 (2 8−1) bytes
+      TEXT |        65,535 (216−1) bytes = 64 KiB
+MEDIUMTEXT |    16,777,215 (224−1) bytes = 16 MiB
+  LONGTEXT | 4,294,967,295 (232−1) bytes =  4 GiB
+```
