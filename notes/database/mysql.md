@@ -24,3 +24,4 @@ WHERE
 MEDIUMTEXT |    16,777,215 (224−1) bytes = 16 MiB
   LONGTEXT | 4,294,967,295 (232−1) bytes =  4 GiB
 ```
+

@@ -315,5 +315,40 @@ end
 }
 ```
 
+Ecto事件采样的`metadata`同样提供了更多的信息：
+
+```
+%{
+  params: [2112],
+  query: "SELECT u0.\"id\", u0.\"first_name\", u0.\"last_name\", u0.\"email\", u0.\"inserted_at\", u0.\"updated_at\" FROM \"users\" AS u0 WHERE (u0.\"id\" = $1)",
+  repo: MyApp.Repo,
+  result: {:ok,
+   %Postgrex.Result{
+     columns: ["id", "first_name", "last_name", "email", "inserted_at", "updated_at"],
+     command: :select,
+     connection_id: 18220,
+     messages: [],
+     num_rows: 1,
+     rows: [
+       [2112, "Example", "User", "user@example.com",
+        ~N[2018-08-28 15:29:11.106171], ~N[2018-12-04 14:23:02.000000]]
+     ]
+   }},
+  source: "users",
+  type: :ecto_sql_query
+}
+```
+
+Telemetry本身并不是一项颠覆性的想法，项目的开发者都不这么说。他们只是宣称它提供了灵活可靠的数据采点的手段。更重要的是，项目创始人Arkadiusz Gil声称，"我们的目标是为运行在Beam虚拟机上的应用制定了监控采点的标准。"[Arkadiusz Gil - Telemetry …and metrics for all](https://www.youtube.com/watch?v=cOuyOmcDV1U)
+
+"标准"这个词才是重点。与其浪费时间在如何收集数据，不如将目光集中在收集哪些数据。更进一步，得益于这个标准化，我们已经在使用的库可以加入Telemetry的钩子，让我们更方便的抓取我们想要的数据。
+
+我们需要数据。我们需要它来发现系统的瓶颈，衡量我们修改的效果，在客户前面发现问题，最重要的是，帮助我们更好的决策。我们必须要小心应对我们抓取的数据，如果它们没有与其他数据相关联或者没能够帮助我们更好的决策，那还不如不要它们。
+
+>    What gets measured gets managed - even when it’s pointless to measure and manage it, and even if it harms the purpose of the organisation to do so.
+>
+>    – V. F. Ridgway
+
+
 
 原文链接：[The “How”s, “What”s, and “Why”s of Elixir Telemetry](https://samuelmullen.com/articles/the-hows-whats-and-whys-of-elixir-telemetry/)
