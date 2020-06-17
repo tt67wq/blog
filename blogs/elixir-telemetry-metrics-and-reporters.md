@@ -13,6 +13,8 @@
 
 在我的上篇文章[The “How”s, “What”s, and “Why”s of Elixir Telemetry](https://samuelmullen.com/articles/the-hows-whats-and-whys-of-elixir-telemetry/)中，我们讨论了系统监控的价值，怎样使用[Telemetry](https://github.com/beam-telemetry/telemetry)以及采样错误的害处。然而，你可能还在纠结怎样处理采集到的数据。
 
+监控抓取数据只是这个方程式的一半。这篇文章中，我们将看看measurement和metrics的区别，怎样定一个好的采样，采样时需要注意的东西以及如何使用Elixir的库[Telemetry](https://github.com/beam-telemetry/telemetry_metrics)来采样。
+
 
 
 原文链接: [elixir-telemetry-metrics-and-reporters](https://samuelmullen.com/articles/elixir-telemetry-metrics-and-reporters/)
