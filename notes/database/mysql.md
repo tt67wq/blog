@@ -25,3 +25,10 @@ MEDIUMTEXT |    16,777,215 (224−1) bytes = 16 MiB
   LONGTEXT | 4,294,967,295 (232−1) bytes =  4 GiB
 ```
 
+#### 用户和权限
+```
+create user zhangsan identified by 'zhangsan';
+grant all privileges on zhangsanDb.* to zhangsan@'%' identified by 'zhangsan';
+flush privileges;
+show grants for 'zhangsan';
+```
