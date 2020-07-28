@@ -36,7 +36,7 @@ show grants for 'zhangsan';
 
 #### 库/表导出/入
 ```
-mysqldump --host={host} -u{user} -p{password} --databases {database} --tables {tables} --skip-lock-tables --result-file={result}.sql
+mysqldump --host={host} -u{user} -p{password} --databases {database} --tables {tables} --where="{where}" --skip-lock-tables --result-file={result}.sql
 
 mycli -h{host} -u{user} -D{database} -p{password} < {result}.sql
 ```
