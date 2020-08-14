@@ -10,6 +10,7 @@
 4. [[译] Elixir宏与编译时骇入](https://github.com/tt67wq/blog/blob/master/blogs/Compile_Time_Work_With_Elixir_Macros.md)
 5. [[译] 在Elixir中利用leex和yecc做词法分析和语法分析](https://github.com/tt67wq/blog/blob/master/blogs/tokenizing-and-parsing-in-elixir-using-leex-and-yecc.md)
 6. [[译] Telemetry的必要性和简单使用](https://github.com/tt67wq/blog/blob/master/blogs/the-hows-whats-and-whys-of-elixir-telemetry.md)
+7. [5个编程准则](https://github.com/tt67wq/blog/blob/master/blogs/5_rules_of_programming.md)
 
 ## 联系方式
   商业互吹请加微信MTMzNzI1NzY5ODc=
