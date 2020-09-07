@@ -103,3 +103,9 @@ last # 查看用户登录日志
 
 #### tcpdump技巧
 [tcpdump ](https://juejin.im/post/6844904084168769549)
+
+#### zshrc
+```
+alias pg='grep_fun(){ ps aux | grep -i $@ | grep -v grep ;};grep_fun $1'
+alias pk='grep_kill(){ ps -ef | grep -i $@ | grep -v grep | awk '"'"'{print $2}'"'"' | xargs kill -9 ;};grep_kill $1'
+```
