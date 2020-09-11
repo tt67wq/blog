@@ -309,7 +309,7 @@ installInitScript(){
     if [[ -n "${SYSTEMCTL_CMD}" ]];then
         if [[ ! -f "/etc/systemd/system/v2ray.service" ]]; then
             if [[ ! -f "/lib/systemd/system/v2ray.service" ]]; then
-                cp "${VSRC_ROOT}/systemd/v2ray.service" "/etc/systemd/system/"
+                cp "${VSRC_ROOT}/systemd/system/v2ray.service" "/etc/systemd/system/"
                 systemctl enable v2ray.service
             fi
         fi

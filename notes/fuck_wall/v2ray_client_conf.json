@@ -1,7 +1,7 @@
 {
   "inbounds": [
     {
-      "port": 1081, // 监听端口
+      "port": 1080, // 监听端口
       "protocol": "socks", // 入口协议为 SOCKS 5
       "sniffing": {
         "enabled": true,
@@ -19,15 +19,18 @@
         "vnext": [
           {
             "address": "xxx.xxx.xxx.xxx", // 服务器地址，请修改为你自己的服务器 IP 或域名
-            "port": 8888,  // 服务器端口
+            "port": 8002,  // 服务器端口
             "users": [
               {
-                "id": "67eddd1d-728a-38f6-bc58-a5c69a53e07d",  // 用户 ID，必须与服务器端配置相同
+                "id": "b95884e8-10b4-4f36-bf89-9ff1a2bb0e7b",  // 用户 ID，必须与服务器端配置相同
                 "alterId": 64 // 此处的值也应当与服务器相同
               }
             ]
           }
         ]
+      },
+      "streamSettings":{
+        "network":"ws"
       }
     }
   ]
