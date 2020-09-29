@@ -43,17 +43,7 @@ cmd | curl -F "c=@-" "http://fars.ee/"
 ```
 
 #### logrotate配置
-```
-/path/*.log {
-    daily
-    rotate 5
-    compress
-    delaycompress
-    missingok
-    notifempty
-    create 644 root root
-}
-```
+[教程](https://m.linuxidc.com/Linux/2019-02/157099.htm)
 
 #### Arch安装字体
 
