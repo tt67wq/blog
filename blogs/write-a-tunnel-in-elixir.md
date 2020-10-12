@@ -155,20 +155,174 @@ mix new commmon # 通用组件，utils，helpers之类的东西
 前面是固定的<<9, 4>>开头，后面是key标明哪个连接需要被关闭。
 
 
-### STEP 3: 客户端部分
+### STEP 3: TALK IS CHEAP, SHOW ME THE CODE!
+
+接下来，我们按照协议内容开始编码。
+
+#### 代码骨架
 
 客户端的部分比较简单，我们先着手写这部分。首先先构思客户端的形态，客户端需要主动连接两方，既要连接内网应用，又要连接服务端，那么客户端应当有两个client组成：
 
-- 对内部应用的client命名为worker；
+- 对内部应用的client命名为worker，这一进程应该是动态创建的；
 - 对服务端的我们命名为selector(叫selector是因为服务端发来的流量是复用tcp连接的，这一层的代码需要做一些选择分发的工作)；
 
 那么client的结构应该如下：
 
 ```
 ├── client
-│   ├── application.ex # 相当于main
-│   ├── selector.ex    # 承接server端流量
-│   ├── utils.ex       # 工具函数
-│   └── worker.ex      # 承接本地服务流量
+│   ├── application.ex  # 相当于main
+│   ├── selector.ex     # 承接server端流量
+│   ├── socket_store.ex # 存储端口=>socket的映射关系
+│   ├── utils.ex        # 工具函数
+│   └── worker.ex       # 承接本地服务流量
 ```
 
+至于服务端要考虑的东西更多，服务端会承担以下工作：
+
+- 监听客户端连接；
+- 监听外部连接；
+- 将外部流量转发至客户端；
+- 将客户端发来的流量转发回外部。
+
+可见，服务端里面会有两类tcp server，那么结构可以如下设计：
+
+```
+├── server
+│   ├── application.ex        # 相当于main
+│   ├── external_listener.ex  # 外部监听入口
+│   ├── external_worker.ex    # 外部socket的代理进程
+│   ├── internal_listener.ex  # 客户端的监听进程
+│   ├── internal_worker.ex    # 客户端socket的代理进程
+│   ├── socket_store.ex       # 存储端口=>socket映射关系以及key=>socket映射关系
+│   ├── typespec.ex           # 类型枚举
+│   └── utils.ex              # 工具函数
+```
+
+这个层级结构设计的相当粗糙，可以更加精细，当然，第一版本先着眼主要矛盾。
+
+#### 客户端服务端建立连接部分
+
+在Erlang虚拟机上，可以将一个socket的代理权交给一个Erlang的GenServer进程，让GenServer来全权代理socket的一些事件反应(果然，Erlang才是最好的oo模型)，在这个项目中，所有的socket我们都用GenServer进程来代理，有点类似于其他oo语言的class实例。
+
+我们先着眼于客户端selector，首先这是一个客户端进程，会主动连接服务端的端口。那么我们先拉一个GenServer起来。
+
+```
+defmodule Client.Selector do
+  def start_link(opts) do
+    {name, opts} = Keyword.pop(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
+  end
+
+  def init(_opt) do
+    send(self(), :connect) # 进程启动后给自己发送一个连接服务端的命令
+    {:ok, %{socket: nil}}
+  end
+
+  def handle_info(:connect, state) do
+    {host, port} = server_cfg() # 读取配置文件中服务端的地址和端口信息
+    Logger.info("Connecting to #{host}:#{port}")
+
+    with {:ok, ip} <- host |> to_charlist |> :inet.parse_address(), # 地址解析
+         {:ok, sock} <- :gen_tcp.connect(ip, port, [:binary, active: true, packet: 2]), # 建立连接
+         localhost <- client_cfg(), # 获取配置本地的ip地址
+         {:ok, {ip0, ip1, ip2, ip3}} <- localhost |> to_charlist |> :inet.parse_address() do
+      # handshake
+      :gen_tcp.send(sock, <<0x09, 0x01, ip0, ip1, ip2, ip3>>) # ip地址上报
+      {:noreply, Map.put(state, :socket, sock)}
+    else
+      {:error, reason} ->
+        Logger.warn("reason -> #{inspect(reason)}")
+        Process.send_after(self(), :connect, 1000) # 尝试重连
+        {:noreply, state}
+
+      _ ->
+        {:stop, :normal, state}
+    end
+  end
+end
+```
+
+这部分代码主要就是建立服务端连接，同时按协议上报自己的ip地址。
+
+按照协议，服务端会回执一个包，这里需要做一下应答：
+
+```
+def handle_info({:tcp, _socket, <<0x09, 0x02>>}, state) do
+    # handshake finished
+    Logger.info("handshake finished")
+    {:noreply, state}
+end
+```
+
+服务端需要监听客户端的连接请求，并且做出相应回应。
+
+对应的服务端部分代码在如下：
+
+```
+defmodule Server.InternalListener do
+  @moduledoc """
+  内部监听
+  """
+  require Logger
+  use GenServer
+  alias Server.{InternalWorker}
+
+    def start_link(opts) do
+    {name, opts} = Keyword.pop(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
+  end
+
+  def init(_opts) do
+    port = server_port()
+    {:ok, acceptor} = :gen_tcp.listen(port, [:binary, active: false, reuseaddr: true, packet: 2])
+    send(self(), :accept)
+
+    Logger.info("Accepting connection on port #{port}...")
+    {:ok, %{acceptor: acceptor}}
+  end
+
+  def handle_info(:accept, %{acceptor: acceptor} = state) do
+    {:ok, sock} = :gen_tcp.accept(acceptor)
+
+    # 启动一个进程来代理来自客户端的连接
+    {:ok, pid} = GenServer.start_link(InternalWorker, socket: sock)
+
+    # 转交给GenServer来处理socket事件
+    :gen_tcp.controlling_process(sock, pid)
+
+    send(self(), :accept)
+    {:noreply, state}
+  end
+end
+
+
+defmodule Server.InternalWorker do
+  @moduledoc """
+  内部数据交互进程
+  """
+  use GenServer
+  require Logger
+
+  def start_link(opts) do
+    {name, opts} = Keyword.pop(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
+  end
+
+  def init(socket: socket) do
+    :inet.setopts(socket, active: true)
+    {:ok, %{socket: socket}}
+  end
+
+  def handle_info({:tcp, socket, <<0x09::8, 0x01::8, ip::32>> = data}, state) do
+    Logger.info("internal recv => #{inspect(data)}")
+    
+    IPSocketStore.add_socket(<<ip::32>>, self()) # 存储ip=>socket进程的映射
+    # handshake
+    :gen_tcp.send(socket, <<0x09, 0x02>>) # 按照协议回执一个 <<9, 2>>
+    {:noreply, Map.put(state, :ip, <<ip::32>>)}
+  end
+end
+
+```
+
+至此，建立连接握手的部分就完成了。
