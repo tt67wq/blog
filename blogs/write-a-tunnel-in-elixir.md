@@ -131,7 +131,13 @@ mix new commmon # 通用组件，utils，helpers之类的东西
 | 0x09 | 0x03 | key::16 | client_port::16 |
 ```
 
-前面固定2字节<<9, 3>>，后面会跟上两字节的key和一个2字节的端口号。其中，key用于表示某个外部连接的id，client_port表示这个包要发往内部的哪个端口。当外部与服务端建立了连接，我们会为每个tcp连接，分配一个2字节的key，并存储key到连接的映射关系。再转发至客户端的时候，会带上这个key，此时客户端会根据client_port与内部应用建立连接，并存储key到内部连接的映射关系。这样我们就可以根据key来区分服务端与客户端通信包中的归属。这里我就没有再做客户端的回执。
+前面固定2字节<<9, 3>>，后面会跟上两字节的key和一个2字节的端口号。其中，key用于表示某个外部连接的id，client_port表示这个包要发往内部的哪个端口。当外部与服务端建立了连接，我们会为每个tcp连接，分配一个2字节的key，并存储key到连接的映射关系。再转发至客户端的时候，会带上这个key，此时客户端会根据client_port与内部应用建立连接，并存储key到内部连接的映射关系。这样我们就可以根据key来区分服务端与客户端通信包中的归属。
+
+特别需要注意的是，外部与服务端的交互是没法感知客户端这边的情况，很有可能，外部完成tcp连接后，马上开始发送流量，但是从服务端发往客户端的网络包未必是按照顺序来的，所以在客户端成功与内部应用建立tcp连接之前，服务端最好将外部流量缓存，等待客户端回执一个连接建立成功的信号，再将缓存中的流量按顺序发给客户端。为了简单起见，将回执做如下设计：
+
+```
+| 0x09 | 0x03 | key::16 |
+```
 
 
 #### *3. 通信阶段*
@@ -254,6 +260,8 @@ def handle_info({:tcp, _socket, <<0x09, 0x02>>}, state) do
 end
 ```
 
+在socket代理进程中，发给socket的信息会被转成一个发给erlang微进程的msg，简化了我们的编程模型，免去了自己主动recv再去做相应的event handle。
+
 服务端需要监听客户端的连接请求，并且做出相应回应。
 
 对应的服务端部分代码在如下：
@@ -313,6 +321,7 @@ defmodule Server.InternalWorker do
     {:ok, %{socket: socket}}
   end
 
+  # 接收到<<9， 1>> 开头表示ip地址上报
   def handle_info({:tcp, socket, <<0x09::8, 0x01::8, ip::32>> = data}, state) do
     Logger.info("internal recv => #{inspect(data)}")
     
@@ -326,3 +335,140 @@ end
 ```
 
 至此，建立连接握手的部分就完成了。
+
+
+#### *服务端对外部服务的监听*
+
+服务端除了监听客户端的连接，还需要监听外部的映射端口，例如我们的配置文件格式如下：
+
+```
+# 转发配置
+nat:
+  - name: "server0"
+    from: localhost:8080
+    to: 192.168.10.101:80
+
+  - name: "server1"
+    from: localhost:8081
+    to: 192.168.10.101:81
+```
+
+我们需要监听8080口和8081口，可以根据配置文件动态创建多个监听进程，具体代码如下：
+
+```
+defmodule Server.ExternalListener do
+  @moduledoc """
+  外部监听
+  """
+
+  require Logger
+  use GenServer
+  alias Server.{ExternalWorker, SocketStore, Utils}
+
+  def start_link(opts) do
+    {name, opts} = Keyword.pop(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
+  end
+
+  @doc """
+  nat 示例
+  %{
+    "from"=> "localhost:8080"
+    "to"=> "192.168.10.101:80"
+  }
+  """
+  def init(nat: nat) do
+    [_, port_str] = nat |> Map.get("from") |> String.split(":")
+    port = String.to_integer(port_str)
+
+    # 监听
+    {:ok, acceptor} = :gen_tcp.listen(port, [:binary, active: false, reuseaddr: true])
+    send(self(), :accept)
+    Logger.info("Accepting connection on port #{port}...")
+
+    {:ok, %{acceptor: acceptor, nat: nat, port: port}}
+  end
+
+  def handle_info(:accept, %{acceptor: acceptor, port: port} = state) do
+
+    # 建立连接
+    {:ok, sock} = :gen_tcp.accept(acceptor)
+    Logger.info("new connection established from port #{port}")
+
+    sock_key = Utils.generete_socket_key()
+
+    # 创建一个worker 来处理外部数据
+    {:ok, pid} = GenServer.start_link(ExternalWorker, socket: sock, nat: state.nat, key: sock_key)
+    :gen_tcp.controlling_process(sock, pid)
+
+    # 注册至 key => socket 仓库
+    SocketStore.add_socket(sock_key, pid)
+
+    send(self(), :accept)
+    {:noreply, state}
+  end
+end
+```
+
+处理外部流量的Worker在创建后需要立即通知客户端，具体细节如下：
+
+
+```
+defmodule Server.ExternalWorker do
+  @moduledoc """
+  数据处理进程
+  """
+
+  use GenServer
+  require Logger
+  alias Server.{InternalWorker, SocketStore, IPSocketStore, Typespec}
+
+  def start_link(opts) do
+    {name, opts} = Keyword.pop(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
+  end
+
+  def send_message(pid, message), do: GenServer.cast(pid, {:message, message})
+
+  @spec init(socket: Typespec.socket(), nat: map(), key: Typespec.sock_key()) :: {:ok, pid()}
+  def init(socket: socket, nat: nat, key: key) do
+
+    # 解析配置文件，获取对应的内网端口号和地址
+    [client_ip_raw, client_port] =
+      nat
+      |> Map.get("to")
+      |> String.split(":")
+
+    {:ok, {ip0, ip1, ip2, ip3}} = client_ip_raw |> to_charlist() |> :inet.parse_address()
+
+    # 先设置为被动模式，不接收packet
+    :inet.setopts(socket, active: false)
+    send(self(), :tcp_connection_req)
+
+    {:ok,
+     %{
+       socket: socket,
+       key: key,
+       client_ip: <<ip0, ip1, ip2, ip3>>,
+       client_port: String.to_integer(client_port),
+       status: 0,
+       buffer: :queue.new()
+     }}
+  end
+
+  def handle_info(:tcp_connection_req, state) do
+    Logger.info("send tcp connecntion request")
+
+    # 通知客户端，建立tcp连接
+    send_msg(state.client_ip, <<0x09, 0x03, state.key::16, state.client_port::16>>)
+
+    # 将socket设置为主动模式，开始接收流量
+    :inet.setopts(state.socket, active: true)
+
+    # 将状态置为 握手中
+    {:noreply, Map.put(state, :status, 1)}
+  end
+
+  ...
+end
+```
