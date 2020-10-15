@@ -9,7 +9,7 @@
 现有的内网穿透的方案有很多，例如[花生壳](https://hsk.oray.com/)，[frp](https://github.com/fatedier/frp)，[ngrok](https://github.com/inconshreveable/ngrok)，[shootback](https://github.com/aploium/shootback)等等，如果你想要稳定高性能的穿透产品，建议还是付费用花生壳这种，如果是用于测试和开发，那么一些开源的产品也可以考虑。
 
 
-本篇文章就简单介绍下，如何用Elixir语言编写一个简单的内网穿透工具。
+本篇文章就简单介绍下，如何用Elixir语言编写一个简单的内网穿透工具，该项目的所有代码在这个[仓库](https://github.com/tt67wq/tunnel_ex)。
 
 -------
 ## WHY
@@ -451,7 +451,7 @@ defmodule Server.ExternalWorker do
        key: key,
        client_ip: <<ip0, ip1, ip2, ip3>>,
        client_port: String.to_integer(client_port),
-       status: 0,
+       status: 0, # 状态0表示未握手
        buffer: :queue.new()
      }}
   end
@@ -465,10 +465,60 @@ defmodule Server.ExternalWorker do
     # 将socket设置为主动模式，开始接收流量
     :inet.setopts(state.socket, active: true)
 
-    # 将状态置为 握手中
+    # 将状态置为 1=>握手中
     {:noreply, Map.put(state, :status, 1)}
   end
 
+  def handle_info({:tcp, _, data}, state) do
+    Logger.info("external recv => #{inspect(data)}")
+
+    new_state =
+      case state.status do
+        2 -> # 若已建立连接，则直接发送
+          # already set
+          :ok = send_msg(state.client_ip, <<state.key::16>> <> data)
+          state
+
+        _ ->
+          # not set, go to buffer
+          # 状态还在握手中，或未握手，应该将外部流量存在队列中，等待状态变为2后再将缓存吐出
+          Map.put(state, :buffer, :queue.in(data, state.buffer))
+      end
+
+    {:noreply, new_state}
+  end  
   ...
+end
+```
+
+服务端发送建立tcp连接的通知后，客户端要对此做出反应，按照协议，代码如下：
+
+```
+# 建立连接通知
+def handle_info({:tcp, socket, <<0x09, 0x03, key::16, client_port::16>>}, state) do
+  Logger.debug("selector recv tcp connection request")
+  create_local_conn(key, client_port) # 建立对内部应用的连接
+  :gen_tcp.send(socket, <<0x09, 0x03, key::16>>) # 回执服务端，告知本地已连接成功
+  {:noreply, state}
+end
+```
+
+当服务端收到客户端回执后，会触发后续状态变化，一方面是将状态改为握手完成，另一方面是将缓存中的流量发向客户端。
+
+```
+def handle_info(:tcp_connection_set, state) do
+  Logger.info("recv tcp connecntion finished")
+
+  # send all buffer to client
+  # 将缓存发向client
+  flush_buffer(state.buffer, state.key, state.client_ip)
+
+  # 状态置为握手完成，缓存清空
+  new_state =
+    state
+    |> Map.put(:status, 2)
+    |> Map.put(:buffer, :queue.new())
+
+  {:noreply, new_state}
 end
 ```
