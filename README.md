@@ -11,3 +11,4 @@
 5. [[译] 在Elixir中利用leex和yecc做词法分析和语法分析](https://github.com/tt67wq/blog/blob/master/blogs/tokenizing-and-parsing-in-elixir-using-leex-and-yecc.md)
 6. [[译] Telemetry的必要性和简单使用](https://github.com/tt67wq/blog/blob/master/blogs/the-hows-whats-and-whys-of-elixir-telemetry.md)
 7. [5个编程准则](https://github.com/tt67wq/blog/blob/master/blogs/5_rules_of_programming.md)
+8. [写个简单的内网穿透](https://github.com/tt67wq/blog/blob/master/blogs/write-a-tunnel-in-elixir.md)
