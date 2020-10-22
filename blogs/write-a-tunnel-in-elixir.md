@@ -145,7 +145,7 @@ mix new commmon # 通用组件，utils，helpers之类的东西
 当服务端与客户端都建立了tcp连接，接下来就是发送应用层的数据流，我们做如下设计：
 
 ```
-| key::16 | real packet |  
+| key::16 | real packet |
 ```
 
 很容易理解，根据key找到对应的内部连接，然后将真正的流量转发过去。
@@ -522,3 +522,86 @@ def handle_info(:tcp_connection_set, state) do
   {:noreply, new_state}
 end
 ```
+
+缓存我使用的是erlang自带的queue结构，flush_buffer这个工具函数的实现如下：
+
+```
+defp flush_buffer(buffer, key, ip) do
+  buffer
+  |> :queue.out()
+  |> case do
+	{{:value, msg}, buf} ->
+	  send_msg(ip, <<key::16>> <> msg)
+	  flush_buffer(buf, key, ip)
+
+	{:empty, _} ->
+	  nil
+  end
+end
+```
+
+#### *映射关系管理*
+
+在客户端和服务端都有需要管理key到socket或者ip到socket的映射关系，实际上这就是个全局的dict，在Elixir中，可以用Registry或者Agent来管理这个数据，以服务端ip到socket映射为例：
+
+```
+defmodule Server.IPSocketStore do
+  use Agent
+  alias Server.Typespec
+
+  def start_link(_opts) do
+    Agent.start_link(fn -> %{} end, name: __MODULE__)
+  end
+
+  # 随机选择一个socket
+  @spec get_socket(Typespec.ip()) :: Typespec.socket()
+  def get_socket(ip) do
+    __MODULE__
+    |> Agent.get(& &1)
+    |> Map.get(ip)
+    |> (fn
+          nil -> nil
+          socks -> Enum.random(socks)
+        end).()
+  end
+
+  @spec add_socket(Typespec.ip(), Typespec.socket()) :: :ok
+  def add_socket(ip, pid),
+    do: Agent.update(__MODULE__, fn x -> Map.update(x, ip, [pid], &[pid | &1]) end)
+
+  @spec rm_socket(Typespec.ip()) :: :ok
+  def rm_socket(ip), do: Agent.update(__MODULE__, fn x -> Map.delete(x, ip) end)
+end
+
+```
+
+
+#### *通信阶段*
+
+通过前面几个阶段的铺垫，通信阶段反而简单了，服务端只需要知道内网的ip地址和端口，然后丢给客户端即可：
+
+```
+defp send_msg(ip, msg) do
+  # 选择一个可用的客户端链接
+  case IPSocketStore.get_socket(ip) do
+    nil ->
+      Logger.warn("no socket avaiable")
+      {:error, "no socket avaiable"}
+
+    pid ->
+      InternalWorker.send_message(pid, msg) # 实际上调用的是:gen_tcp.send/2 方法
+  end
+end
+
+```
+
+
+## 总结
+
+我们利用Elixir语言简洁快速的构建了一个多端口对多端口，且多路复用的内网穿透工具。在这个项目中，我们自己设计了一个简单的协议，完成tcp事件在客户端的重放和单个逃跑链接对多对peer流量的多路复用。在具体实现中，我们使用了一些erlang socket编程的技巧，利用beam虚拟机的进程来代理socket的收发动作，利用Agent来管理socket的映射关系。最后使整个软件的脉络清晰，结构简单。当然，这个穿透软件还有很多不足，例如：
+
+1. 协议中没有考虑异常处理；
+2. 服务端不支持动态配置；
+3. 利用:gen_tcp代理socket没有做限流处理；
+
+当然，作为一个玩具项目，不能要求尽善尽美，用来作为CS编程的练习项目非常合适。
