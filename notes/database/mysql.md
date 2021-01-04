@@ -33,6 +33,11 @@ flush privileges;
 show grants for 'zhangsan';
 ```
 
+#### 建库
+```
+create database sugar default character set utf8mb4 collate utf8mb4_unicode_ci;
+```
+
 
 #### 库/表导出/入
 ```
