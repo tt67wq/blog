@@ -28,7 +28,7 @@ MEDIUMTEXT |    16,777,215 (224−1) bytes = 16 MiB
 #### 用户和权限
 ```
 create user zhangsan identified by 'zhangsan';
-grant all privileges on zhangsanDb.* to zhangsan@'%' identified by 'zhangsan';
+grant all privileges on zhangsanDb.* to zhangsan@'%' identified by 'zhangsan' WITH GRANT OPTION;
 flush privileges;
 show grants for 'zhangsan';
 ```
