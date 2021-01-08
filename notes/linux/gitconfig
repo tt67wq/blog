@@ -1,0 +1,16 @@
+[user]
+	email = tt67wq@xyz.com
+	name = tt67wq
+[alias]
+	s = status
+	d = diff
+	co = checkout
+	br = branch
+	lo = log --oneline -n 20
+	pr = pull --rebase
+	ps = push
+	rb = rebase
+	sh = show
+
+	yolo = !git add -A && git commit -m "$(curl --silent --fail https://whatthecommit.com/index.txt)"
+	del = push origin --delete
