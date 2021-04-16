@@ -12,3 +12,4 @@
 6. [[译] Telemetry的必要性和简单使用](https://github.com/tt67wq/blog/blob/master/blogs/the-hows-whats-and-whys-of-elixir-telemetry.md)
 7. [5个编程准则](https://github.com/tt67wq/blog/blob/master/blogs/5_rules_of_programming.md)
 8. [写个简单的内网穿透](https://github.com/tt67wq/blog/blob/master/blogs/write-a-tunnel-in-elixir.md)
+9. [[译] 使用 systemd 定时器代替 cronjobs](https://github.com/tt67wq/blog/blob/master/blogs/20200707%20Use%20systemd%20timers%20instead%20of%20cronjobs.md)
