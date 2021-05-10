@@ -495,18 +495,16 @@ systemd 定时器可以用于执行和 cron 工具相同的任务，但是通过
 
 ### 参考资料
 
-网上有大量的关于 systemd 的参考资料，但是大部分都有点幼稚，粗略甚至有误导性。除了本文中提到的资料，下列的网页提供了跟多可靠且详细的 systemd 入门信息。
+网上有大量的关于 systemd 的参考资料，但是大部分都有点简略、晦涩甚至有误导性。除了本文中提到的资料，下列的网页提供了跟多可靠且详细的 systemd 入门信息。
 
-  * Fedora 项目有切实好用的 [systemd 入门 ][5]。它囊括了几乎所有你需要知道的关于如何使用 systemd 配置，管理和维护 Fedora 计算机。
-  * Fedora 项目也有一个不错的[备忘录 ][6]，交叉引用了过去 SystemV 命令和 systemd 命令做对比。
-  * 关于 systemd 和为创建这个项目原因的技术细节，查看 [Freedesktop.org][7]'s [systemd 描述 ][8]。
-  * [Linux.com][9] 的"更多 systemd 的乐趣"栏目提供了跟多 systemd 进阶的[内幕和技巧 ][10]。
+ * Fedora 项目有一篇切实好用的 systemd 入门，它囊括了几乎所有你需要知道的关于如何使用 systemd 配置、管理和维护 Fedora 计算机的信息。
+ * Fedora 项目也有一个不错的 备忘录，交叉引用了过去 SystemV 命令和 systemd 命令做对比。
+ * 关于 systemd 的技术细节和创建这个项目的原因，请查看 Freedesktop.org 上的 systemd 描述。
+ * Linux.com 的“更多 systemd 的乐趣”栏目提供了更多高级的 systemd 信息和技巧。
 
+此外，还有一系列深度的技术文章，是由 systemd 的设计者和主要实现者 Lennart Poettering 为 Linux 系统管理员撰写的。这些文章写于 2010 年 4 月至 2011 年 9 月间，但它们现在和当时一样具有现实意义。关于 systemd 及其生态的许多其他好文章都是基于这些文章：
 
-
-还有一系列 Lennart Poettering 撰写的 Linux 系统管理相关的深度的技术文章，他是 systemd 的设计者和主要实现者。这些文章写在 2010 年 4 月至 2011 年 9 月，但是它们如同现在一样贴切。systemd 及其生态相关的几乎一些优秀的产出基本都是基于这些论文。
-
-  * [Rethinking PID 1][11]
+* [Rethinking PID 1][11]
   * [systemd for Administrators，Part I][12]
   * [systemd for Administrators，Part II][13]
   * [systemd for Administrators，Part III][14]
