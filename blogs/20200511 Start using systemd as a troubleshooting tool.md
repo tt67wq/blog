@@ -214,18 +214,18 @@ Linux.com 的“更多 systemd 的乐趣”栏目提供了更多高级的 system
 
 此外，还有一系列深度的技术文章，是由 systemd 的设计者和主要开发者 Lennart Poettering 为 Linux 系统管理员撰写的。这些文章写于 2010 年 4 月至 2011 年 9 月间，但它们现在和当时一样具有现实意义。关于 systemd 及其生态的许多其他好文章都是基于这些文章：
 
-  * [Rethinking PID 1][18]
-  * [systemd for Administrators，Part I][19]
-  * [systemd for Administrators，Part II][20]
-  * [systemd for Administrators，Part III][21]
-  * [systemd for Administrators，Part IV][22]
-  * [systemd for Administrators，Part V][23]
-  * [systemd for Administrators，Part VI][24]
-  * [systemd for Administrators，Part VII][25]
-  * [systemd for Administrators，Part VIII][26]
-  * [systemd for Administrators，Part IX][27]
-  * [systemd for Administrators，Part X][28]
-  * [systemd for Administrators，Part XI][29]
+  * [Rethinking PID 1][14]
+  * [systemd for Administrators，Part I][15]
+  * [systemd for Administrators，Part II][16]
+  * [systemd for Administrators，Part III][17]
+  * [systemd for Administrators，Part IV][18]
+  * [systemd for Administrators，Part V][19]
+  * [systemd for Administrators，Part VI][20]
+  * [systemd for Administrators，Part VII][21]
+  * [systemd for Administrators，Part VIII][22]
+  * [systemd for Administrators，Part IX][23]
+  * [systemd for Administrators，Part X][24]
+  * [systemd for Administrators，Part XI][25]
 
 
 
