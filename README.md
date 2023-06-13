@@ -1,3 +1,3 @@
 ## 废话连篇
 
-- [胡言乱语](https://github.com/tt67wq/blog/blob/main/lessons.md)
+请直接看repo好了，目录就懒得写了
