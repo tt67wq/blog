@@ -1,0 +1,68 @@
+/* 字体:霞鹜文楷(正文/中文) + JetBrains Mono(代码),均走 jsdelivr CDN */
+@import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont/style.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.0/index.css');
+
+:root {
+  --paper: #faf7f1;        /* 暖纸底色 */
+  --ink: #3d3733;          /* 墨色正文 */
+  --ink-light: #7a716a;
+  --accent: #c04a3a;       /* 朱红点缀 */
+  --accent-soft: rgba(192, 74, 58, .12);
+  --line: #e8e1d6;
+  --card: #fffdf9;
+  --code-bg: #f3eee4;
+}
+
+@media (prefers-color-scheme: dark) {
+  html { --paper: #1c1a17; --ink: #d8d2c8; --ink-light: #9a9288;
+         --accent: #e07b6a; --accent-soft: rgba(224, 123, 106, .15);
+         --line: #35302a; --card: #24211d; --code-bg: #2a261f; }
+}
+
+html, body { background: var(--paper) !important; color: var(--ink); }
+body { font-family: 'LXGW WenKai', 'Georgia', serif; letter-spacing: .01em; }
+h1, h2, h3, h4, .post-entry h2 { font-weight: 700; }
+
+a { color: var(--ink); }
+a:hover { color: var(--accent); }
+
+/* 导航 */
+nav .nav-container, header .nav { background: var(--paper) !important; border-bottom: 1px solid var(--line); }
+nav .menu a { color: var(--ink-light); }
+nav .menu a:hover, .first { color: var(--accent) !important; }
+
+/* 首页文章卡片 */
+.post-entry { background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: 16px 18px; margin-bottom: 12px;
+  box-shadow: 0 1px 2px rgba(61,55,51,.05); transition: box-shadow .2s, transform .2s; }
+.post-entry:hover { box-shadow: 0 4px 14px rgba(61,55,51,.1); transform: translateY(-2px); }
+.entry-header .entry-hint { color: var(--ink-light); }
+
+/* 标题与链接点缀 */
+h2 a:hover, .post-entry a:hover { color: var(--accent); }
+.content a { color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid var(--accent-soft); }
+.content a:hover { border-bottom-color: var(--accent); }
+.content a code { color: var(--accent); }
+
+/* 代码 */
+code, pre, kbd { font-family: 'JetBrains Mono', 'LXGW WenKai Mono', monospace !important; }
+code { background: var(--code-bg); color: var(--ink); border-radius: 4px; }
+pre { background: var(--code-bg) !important; border: 1px solid var(--line); border-radius: 8px; }
+pre code { background: transparent; }
+
+/* 分页 / 归档 / 标签 */
+.pagination a:hover, .terms-tags a:hover { background: var(--accent-soft) !important; color: var(--accent) !important; }
+.terms-tags a { background: var(--card); border: 1px solid var(--line); color: var(--ink); }
+.archive-year { color: var(--accent); }
+
+/* 分隔线、footer、引用 */
+hr { border-color: var(--line); }
+footer, .footer { color: var(--ink-light); border-top: 1px solid var(--line); }
+.content blockquote { background: var(--accent-soft); border-left: 4px solid var(--accent);
+  color: var(--ink); border-radius: 0 8px 8px 0; }
+
+/* 表格 */
+.content table { border-collapse: collapse; }
+.content table th, .content table td { border: 1px solid var(--line); }
+.content table th { background: var(--code-bg); }

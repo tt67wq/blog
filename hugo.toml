@@ -5,6 +5,9 @@ enableRobotsTXT = true
 
 [params]
 defaultTheme = 'auto'
+
+[params.assets]
+customCSS = ['css/custom.css']
 ShowReadingTime = true
 ShowShareButtons = false
 ShowPostNavLinks = true
