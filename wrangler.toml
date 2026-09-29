@@ -1,0 +1,6 @@
+name = "blog"
+compatibility_date = "2026-09-01"
+
+# 纯静态站:Worker 只负责托管 public/ 产物,无需脚本
+[assets]
+directory = "./public"
