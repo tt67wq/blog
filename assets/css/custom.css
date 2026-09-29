@@ -6,8 +6,8 @@
   --paper: #faf7f1;        /* 暖纸底色 */
   --ink: #3d3733;          /* 墨色正文 */
   --ink-light: #7a716a;
-  --accent: #c04a3a;       /* 朱红点缀 */
-  --accent-soft: rgba(192, 74, 58, .12);
+  --accent: #d95f18;       /* 橙 **/*/
+  --accent-soft: rgba(217, 95, 24, .12);
   --line: #e8e1d6;
   --card: #fffdf9;
   --code-bg: #f3eee4;
@@ -15,7 +15,7 @@
 
 @media (prefers-color-scheme: dark) {
   html { --paper: #1c1a17; --ink: #d8d2c8; --ink-light: #9a9288;
-         --accent: #e07b6a; --accent-soft: rgba(224, 123, 106, .15);
+         --accent: #f08a4b; --accent-soft: rgba(240, 138, 75, .15);
          --line: #35302a; --card: #24211d; --code-bg: #2a261f; }
 }
 
