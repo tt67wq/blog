@@ -1,6 +1,6 @@
-baseURL = 'https://example.pages.dev/'
+baseURL = 'https://tt67wq.pages.dev/'
 locale = 'zh-cn'
-title = '我的博客'
+title = 'tt67wq的博客'
 enableRobotsTXT = true
 
 [params]
@@ -14,8 +14,8 @@ ShowPostNavLinks = true
 ShowBreadCrumbs = true
 
 [params.homeInfoParams]
-Title = 'Hi, 我是某某 👋'
-Content = '这里是我的个人博客,记录技术与生活。'
+Title = '天地本宽，而鄙者自隘'
+Content = '风花雪月本闲，而扰攘者自冗'
 
 [params.socialIcons]
 # name: url
