@@ -1,0 +1,136 @@
+/* T-1 — 视觉对齐 blog.moeyua.com（accent / 版式 / 系统字体栈）。
+   PaperMod 只加载 css/extended/*.css（layouts/_partials/head.html），本文件即全部自定义层。
+   字体一律系统栈，不引入任何外部字体 CDN。 */
+
+:root {
+  --accent: #2E405B;
+  --accent-soft: rgba(46, 64, 91, .08);
+
+  --theme: #fff;            /* 浅色底色 */
+  --entry: #fff;            /* 无卡片：条目与页面同底 */
+  --primary: #232222;       /* 标题/主文字 */
+  --secondary: #6b6b6b;     /* 元信息/次要文字 */
+  --tertiary: #d9d9d9;
+  --content: #3d3d3d;       /* 正文 */
+  --code-bg: #f5f5f5;       /* 行内代码底 */
+  --code-block-bg: #1c1d21; /* 代码块底 */
+  --border: #eee;           /* 分隔线 */
+  --radius: .375rem;        /* moeyua 圆角 4–6px，禁止 10px 大圆角 */
+}
+
+:root[data-theme="dark"] {
+  --accent: #8ea3c2;        /* 同一 slate 在暗底的提亮变体，保证可读 */
+  --accent-soft: rgba(142, 163, 194, .12);
+
+  --theme: #232222;         /* 暗色底色 */
+  --entry: #232222;
+  --primary: #e6e4e1;
+  --secondary: #9a9590;
+  --tertiary: #3f3d3d;
+  --content: #d2cfcb;
+  --code-bg: #2e2d2d;
+  --code-block-bg: #1e1d1d;
+  --border: #353333;
+}
+
+/* 正文字体：系统栈（moeyua 同款），中文回退到 PingFang SC */
+body {
+  font-family: "Source Sans Pro", Roboto, Helvetica, "Helvetica Neue",
+    "Source Han Sans SC", "PingFang SC", sans-serif;
+}
+
+/* 代码字体：系统等宽栈 */
+code, pre, kbd, samp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
+}
+
+/* 首页列表页底色与正文页一致（PaperMod 默认 .list 用 --code-bg） */
+.list, [data-theme="dark"] .list {
+  background: var(--theme);
+}
+
+/* ---- 头部：居中大标题 + 居中 nav ---- */
+.header-nav {
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+}
+.logo { font-size: 1.75rem; font-weight: 700; }
+.logo a { letter-spacing: .02em; }
+.menu { justify-content: center; flex-wrap: wrap; }
+.menu a { color: var(--secondary); }
+.menu a:hover, .menu .active { color: var(--accent); }
+
+/* ---- 文章列表：去卡片化，平铺 + 下分隔线 ---- */
+.post-entry, .first-entry, .tag-entry {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  margin-bottom: 0;
+  padding: 1.25rem 0;
+  transition: none;
+}
+.post-entry:hover, .post-entry:focus-within {
+  transform: none;
+  border-color: var(--border);
+}
+.entry-header h2 { font-weight: 700; color: var(--primary); }
+.post-entry:hover .entry-header h2 { color: var(--accent); }
+.entry-content { color: var(--secondary); }
+.entry-footer, .post-meta { color: var(--secondary); }
+
+/* ---- 正文测度：65ch ---- */
+.post-content { max-width: 65ch; }
+
+/* 链接用 accent */
+.post-content a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-soft);
+}
+.post-content a:hover { border-bottom-color: var(--accent); }
+.post-content a code { color: var(--accent); }
+
+/* ---- 代码 ---- */
+code { background: var(--code-bg); border-radius: .25rem; padding: .15em .35em; }
+pre { border-radius: .375rem; border: 1px solid var(--border); }
+pre code { background: transparent; padding: 0; }
+
+/* ---- 引用：左边线，无底色 ---- */
+.post-content blockquote {
+  background: transparent;
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  color: var(--content);
+  margin: 1.25rem 0;
+  padding: .25rem 0 .25rem 1rem;
+}
+
+/* ---- 表格 ---- */
+.post-content table { border-collapse: collapse; }
+.post-content table th, .post-content table td { border: 1px solid var(--border); }
+.post-content table th { background: var(--code-bg); }
+
+/* ---- 分页 ---- */
+.pagination a { border-radius: .25rem; }
+.pagination a:hover { background: var(--accent-soft); color: var(--accent); }
+
+/* ---- 标签云（terms 页） ---- */
+.terms-tags a {
+  background: transparent;
+  border: none;
+  border-radius: .25rem;
+  color: var(--secondary);
+}
+.terms-tags a:hover { background: var(--accent-soft); color: var(--accent); }
+
+/* ---- 归档年份 ---- */
+.archive-year-header { color: var(--accent); }
+
+/* ---- 分隔线 / footer ---- */
+hr { border-color: var(--border); }
+.footer { color: var(--secondary); border-top: 1px solid var(--border); }
+.footer a:hover { color: var(--accent); }
