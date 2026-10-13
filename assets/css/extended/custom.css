@@ -134,3 +134,14 @@ pre code { background: transparent; padding: 0; }
 hr { border-color: var(--border); }
 .footer { color: var(--secondary); border-top: 1px solid var(--border); }
 .footer a:hover { color: var(--accent); }
+
+/* ---- 金句高亮：荧光笔底色（mark）----
+   主题 md-content.css 只给了 mark 的圆角与内边距，未给底色；此处补齐并控制断行。 */
+mark {
+  background: rgba(255, 214, 0, .32);
+  color: inherit;
+  padding: .06em .18em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+[data-theme="dark"] mark { background: rgba(214, 178, 46, .26); }
