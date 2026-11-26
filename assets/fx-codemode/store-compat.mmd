@@ -1,0 +1,8 @@
+flowchart TD
+    S["store.set(key, value)\n脚本内缓冲，eval 成功后才落会话日志"] --> Q{"持久化走哪条路？"}
+    Q -- "路线 A：set 事件加新 SetKey" --> A1["SetKey 是封闭枚举 schema.zig:114\n未知 key → error.BadBody → error.Corrupt"]
+    A1 --> A2["老 fx resume 直接 InvalidSessionFormat\nsession.zig:1371，非 damaged 自愈"]
+    A2 --> AX["否决：T-6 测试 14/14 钉死\ndev/stable 共用 profile 真实踩雷"]
+    Q -- "路线 C：新增事件 kind codemode_store" --> C1["老 fx 对未知事件 kind 一律跳过\n会话照常打开"]
+    C1 --> C2["快照 fold.decodeState 只按名取已知字段\n新 State 字段被静默忽略 fold.zig:420"]
+    C2 --> CX["采纳（2026-11-06 重拍板）\n老 fx 丢 store 值 = 合理降级"]

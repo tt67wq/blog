@@ -1,0 +1,417 @@
+{
+ "meta": {
+  "title": "FX CODEMODE · 架构",
+  "lang": "zh"
+ },
+ "canvas": {
+  "preset": "4:5",
+  "duration": 30,
+  "fps": 30,
+  "preroll": 12
+ },
+ "theme": {
+  "preset": "terminal-dark",
+  "fontSize": 21,
+  "lineHeight": 30,
+  "colors": {
+   "mute": "#aab1c0",
+   "rd": "#f07178"
+  }
+ },
+ "machines": {
+  "calls": {
+   "type": "counter",
+   "start": 2610,
+   "rate": 0,
+   "format": "comma"
+  },
+  "results": {
+   "type": "counter",
+   "start": 2062,
+   "rate": 0,
+   "format": "comma"
+  },
+  "codemodehost_l": {
+   "type": "lane",
+   "period": 8.0,
+   "run": 5.4,
+   "off": 0.6,
+   "busy": "执行脚本中",
+   "done": [
+    "脚本完成",
+    "结果回传"
+   ],
+   "phase": 0,
+   "log": {
+    "who": "codemode h…",
+    "c": "gr",
+    "msgs": [
+     [
+      "text() 拼装输出",
+      ""
+     ],
+     [
+      "await tools.read(...)",
+      ""
+     ]
+    ]
+   }
+  }
+ },
+ "elements": [
+  {
+   "type": "text",
+   "x": 0,
+   "w": 1200,
+   "y": 84,
+   "align": "center",
+   "size": 24,
+   "c": "wh",
+   "b": 1,
+   "t": "FX CODEMODE · 架构"
+  },
+  {
+   "type": "rule",
+   "x": 34,
+   "y": 112,
+   "w": 1132
+  },
+  {
+   "type": "text",
+   "x": 0,
+   "w": 1200,
+   "y": 1456,
+   "align": "center",
+   "size": 13,
+   "c": "dim",
+   "t": "2610 / 2062 / 2ms 为真实扫描值；动画与速率为示意 (illustrative)"
+  },
+  {
+   "type": "text",
+   "x": 34,
+   "w": 1132,
+   "y": 1424,
+   "runs": [
+    {
+     "t": "tool_call (30d) ",
+     "c": "dim"
+    },
+    {
+     "t": "[",
+     "c": "gr",
+     "b": 1
+    },
+    {
+     "v": "calls",
+     "c": "gr",
+     "b": 1
+    },
+    {
+     "t": "]",
+     "c": "gr",
+     "b": 1
+    },
+    {
+     "t": "   codemode 结果 ",
+     "c": "dim"
+    },
+    {
+     "t": "[",
+     "c": "gr",
+     "b": 1
+    },
+    {
+     "v": "results",
+     "c": "gr",
+     "b": 1
+    },
+    {
+     "t": "]",
+     "c": "gr",
+     "b": 1
+    }
+   ]
+  },
+  {
+   "type": "path",
+   "points": [
+    [
+     600,
+     261
+    ],
+    [
+     600,
+     381
+    ]
+   ],
+   "color": "line",
+   "r": 0,
+   "width": 2,
+   "flow": {
+    "period": 1.8,
+    "offsets": [
+     0,
+     0.9
+    ],
+    "color": "bl"
+   }
+  },
+  {
+   "type": "path",
+   "points": [
+    [
+     600,
+     498
+    ],
+    [
+     600,
+     618
+    ]
+   ],
+   "color": "line",
+   "r": 0,
+   "width": 2,
+   "flow": {
+    "period": 2.1,
+    "offsets": [
+     0,
+     0.9
+    ],
+    "color": "bl"
+   }
+  },
+  {
+   "type": "path",
+   "points": [
+    [
+     600,
+     765
+    ],
+    [
+     600,
+     885
+    ]
+   ],
+   "color": "line",
+   "r": 0,
+   "width": 2,
+   "flow": {
+    "period": 2.4,
+    "offsets": [
+     0,
+     0.9
+    ],
+    "color": "bl"
+   }
+  },
+  {
+   "type": "path",
+   "points": [
+    [
+     600,
+     1002
+    ],
+    [
+     600,
+     1122
+    ]
+   ],
+   "color": "line",
+   "r": 0,
+   "width": 2,
+   "flow": {
+    "period": 2.7,
+    "offsets": [
+     0,
+     0.9
+    ],
+    "color": "bl"
+   }
+  },
+  {
+   "type": "box",
+   "x": 320,
+   "y": 146,
+   "w": 560,
+   "h": 115,
+   "color": "ma",
+   "pad": [
+    13,
+    14
+   ],
+   "lines": [
+    {
+     "t": "Model",
+     "c": "ma",
+     "b": 1
+    },
+    {
+     "t": "Claude 等模型",
+     "c": "mute"
+    },
+    {
+     "t": "发出一段 JS 脚本",
+     "c": "mute"
+    }
+   ]
+  },
+  {
+   "type": "box",
+   "x": 320,
+   "y": 383,
+   "w": 560,
+   "h": 115,
+   "color": "cy",
+   "pad": [
+    13,
+    14
+   ],
+   "lines": [
+    {
+     "t": "fx orchestrator",
+     "c": "cy",
+     "b": 1
+    },
+    {
+     "t": "接收回合请求",
+     "c": "mute"
+    },
+    {
+     "t": "准入检查",
+     "c": "mute"
+    }
+   ]
+  },
+  {
+   "type": "box",
+   "x": 320,
+   "y": 620,
+   "w": 560,
+   "h": 145,
+   "color": "gr",
+   "pad": [
+    13,
+    14
+   ],
+   "lines": [
+    {
+     "t": "codemode host",
+     "c": "gr",
+     "b": 1
+    },
+    {
+     "t": "QuickJS 专用线程",
+     "c": "mute"
+    },
+    {
+     "t": "启动 ~2ms · 单二进制",
+     "c": "mute"
+    },
+    {
+     "runs": [
+      {
+       "v": "codemodehost_l"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "box",
+   "x": 320,
+   "y": 887,
+   "w": 560,
+   "h": 115,
+   "color": "ye",
+   "pad": [
+    13,
+    14
+   ],
+   "lines": [
+    {
+     "t": "bridge → executeToolCallAuthorized",
+     "c": "ye",
+     "b": 1
+    },
+    {
+     "t": "权限闸门 · permission-first",
+     "c": "mute"
+    },
+    {
+     "t": "按授权逐个放行",
+     "c": "mute"
+    }
+   ]
+  },
+  {
+   "type": "box",
+   "x": 320,
+   "y": 1124,
+   "w": 560,
+   "h": 115,
+   "color": "wh",
+   "pad": [
+    13,
+    14
+   ],
+   "lines": [
+    {
+     "t": "tools",
+     "c": "wh",
+     "b": 1
+    },
+    {
+     "t": "read / bash / edit / write",
+     "c": "mute"
+    },
+    {
+     "t": "searchTools / describeTool",
+     "c": "mute"
+    }
+   ]
+  },
+  {
+   "type": "log",
+   "x": 40,
+   "y": 1273,
+   "w": 1120,
+   "rows": 3,
+   "padTop": 16,
+   "padBottom": 29,
+   "padLeft": 20,
+   "title": "session log",
+   "titleX": 38,
+   "titleW": 178,
+   "cols": [
+    {
+     "key": "time",
+     "x": 0
+    },
+    {
+     "key": "who",
+     "x": 123
+    },
+    {
+     "key": "m",
+     "x": 285
+    },
+    {
+     "key": "g",
+     "x": 784
+    }
+   ]
+  }
+ ],
+ "clock": {
+  "start": "23:48:04",
+  "rate": 3
+ },
+ "titlebar": {
+  "text": "~/fx — codemode host"
+ },
+ "credit": {
+  "text": "fx codemode · live-panel",
+  "y": 1484,
+  "size": 12
+ }
+}
