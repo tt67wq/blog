@@ -1,0 +1,107 @@
+{
+  "theme": "terminal-dark",
+  "canvas": "1:1",
+  "lang": "zh",
+  "title": "DIRECT ×5 vs CODEMODE ×1",
+  "titlebar": "~/fx — turns",
+  "rows": [
+    [
+      {
+        "name": "direct · 回合 1",
+        "lines": [
+          "模型 → read"
+        ],
+        "color": "ye"
+      },
+      {
+        "name": "codemode · 回合 1",
+        "lines": [
+          "模型发一段 JS",
+          "循环 tools.*"
+        ],
+        "color": "gr"
+      }
+    ],
+    [
+      {
+        "name": "direct · 回合 2",
+        "lines": [
+          "模型 → edit"
+        ],
+        "color": "ye"
+      },
+      {
+        "name": "codemode · 执行中",
+        "lines": [
+          "QuickJS 线程",
+          "一次跑完 5 个调用"
+        ],
+        "color": "gr"
+      }
+    ],
+    [
+      {
+        "name": "direct · 回合 3",
+        "lines": [
+          "模型 → read"
+        ],
+        "color": "ye"
+      },
+      {
+        "name": "codemode · 完成",
+        "lines": [
+          "结果一次回传"
+        ],
+        "color": "cy"
+      }
+    ],
+    [
+      {
+        "name": "direct · 回合 4",
+        "lines": [
+          "模型 → edit"
+        ],
+        "color": "ye"
+      },
+      {
+        "name": "codemode · 已结束",
+        "lines": [
+          "等 direct 追赶"
+        ],
+        "color": "wh"
+      }
+    ],
+    [
+      {
+        "name": "direct · 回合 5",
+        "lines": [
+          "模型 → write"
+        ],
+        "color": "ye"
+      },
+      {
+        "name": "成本",
+        "lines": [
+          "5 回合 vs 1 回合"
+        ],
+        "color": "ma"
+      }
+    ]
+  ],
+  "counters": [
+    {
+      "id": "turns",
+      "label": "direct 回合",
+      "start": 5,
+      "rate": 0
+    },
+    {
+      "id": "cm",
+      "label": "codemode 回合",
+      "start": 1,
+      "rate": 0
+    }
+  ],
+  "note": "回合拆分为示意场景 (illustrative)；工具调用次数相同",
+  "credit": "fx codemode · live-panel"
+}

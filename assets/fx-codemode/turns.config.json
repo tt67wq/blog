@@ -1,0 +1,603 @@
+{
+  "meta": {
+    "title": "DIRECT ×5 vs CODEMODE ×1",
+    "lang": "zh"
+  },
+  "canvas": {
+    "preset": "1:1",
+    "duration": 30,
+    "fps": 30,
+    "preroll": 12
+  },
+  "theme": {
+    "preset": "terminal-dark",
+    "fontSize": 19,
+    "lineHeight": 28,
+    "colors": {
+      "mute": "#aab1c0",
+      "rd": "#f07178"
+    }
+  },
+  "machines": {
+    "turns": {
+      "type": "counter",
+      "start": 5,
+      "rate": 0,
+      "format": "comma"
+    },
+    "cm": {
+      "type": "counter",
+      "start": 1,
+      "rate": 0,
+      "format": "comma"
+    },
+    "tick": {
+      "type": "cycle",
+      "period": 2.4,
+      "t0": 0,
+      "values": [
+        {
+          "t": "direct · 回合 1",
+          "m": "direct · 回合 1 · ok"
+        },
+        {
+          "t": "codemode · 回合 1",
+          "m": "codemode · 回合 1 · ok"
+        },
+        {
+          "t": "direct · 回合 2",
+          "m": "direct · 回合 2 · ok"
+        },
+        {
+          "t": "codemode · 执行中",
+          "m": "codemode · 执行中 · ok"
+        },
+        {
+          "t": "direct · 回合 3",
+          "m": "direct · 回合 3 · ok"
+        },
+        {
+          "t": "codemode · 完成",
+          "m": "codemode · 完成 · ok"
+        },
+        {
+          "t": "direct · 回合 4",
+          "m": "direct · 回合 4 · ok"
+        },
+        {
+          "t": "codemode · 已结束",
+          "m": "codemode · 已结束 · ok"
+        },
+        {
+          "t": "direct · 回合 5",
+          "m": "direct · 回合 5 · ok"
+        },
+        {
+          "t": "成本",
+          "m": "成本 · ok"
+        }
+      ],
+      "log": {
+        "who": "event",
+        "c": "cy"
+      }
+    }
+  },
+  "elements": [
+    {
+      "type": "text",
+      "x": 0,
+      "w": 1080,
+      "y": 84,
+      "align": "center",
+      "size": 22,
+      "c": "wh",
+      "b": 1,
+      "t": "DIRECT ×5 vs CODEMODE ×1"
+    },
+    {
+      "type": "rule",
+      "x": 34,
+      "y": 112,
+      "w": 1012
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "w": 1080,
+      "y": 1036,
+      "align": "center",
+      "size": 13,
+      "c": "dim",
+      "t": "回合拆分为示意场景 (illustrative)；工具调用次数相同"
+    },
+    {
+      "type": "text",
+      "x": 34,
+      "w": 1012,
+      "y": 1004,
+      "runs": [
+        {
+          "t": "direct 回合 ",
+          "c": "dim"
+        },
+        {
+          "t": "[",
+          "c": "gr",
+          "b": 1
+        },
+        {
+          "v": "turns",
+          "c": "gr",
+          "b": 1
+        },
+        {
+          "t": "]",
+          "c": "gr",
+          "b": 1
+        },
+        {
+          "t": "   codemode 回合 ",
+          "c": "dim"
+        },
+        {
+          "t": "[",
+          "c": "gr",
+          "b": 1
+        },
+        {
+          "v": "cm",
+          "c": "gr",
+          "b": 1
+        },
+        {
+          "t": "]",
+          "c": "gr",
+          "b": 1
+        }
+      ]
+    },
+    {
+      "type": "path",
+      "points": [
+        [
+          284,
+          255
+        ],
+        [
+          284,
+          309
+        ]
+      ],
+      "color": "line",
+      "r": 0,
+      "width": 2,
+      "flow": {
+        "period": 1.8,
+        "offsets": [
+          0,
+          0.9
+        ],
+        "color": "bl"
+      }
+    },
+    {
+      "type": "path",
+      "points": [
+        [
+          796,
+          255
+        ],
+        [
+          796,
+          309
+        ]
+      ],
+      "color": "line",
+      "r": 0,
+      "width": 2,
+      "flow": {
+        "period": 2.1,
+        "offsets": [
+          0,
+          0.9
+        ],
+        "color": "bl"
+      }
+    },
+    {
+      "type": "path",
+      "points": [
+        [
+          284,
+          420
+        ],
+        [
+          284,
+          474
+        ]
+      ],
+      "color": "line",
+      "r": 0,
+      "width": 2,
+      "flow": {
+        "period": 2.4,
+        "offsets": [
+          0,
+          0.9
+        ],
+        "color": "bl"
+      }
+    },
+    {
+      "type": "path",
+      "points": [
+        [
+          796,
+          420
+        ],
+        [
+          796,
+          474
+        ]
+      ],
+      "color": "line",
+      "r": 0,
+      "width": 2,
+      "flow": {
+        "period": 2.7,
+        "offsets": [
+          0,
+          0.9
+        ],
+        "color": "bl"
+      }
+    },
+    {
+      "type": "path",
+      "points": [
+        [
+          284,
+          557
+        ],
+        [
+          284,
+          611
+        ]
+      ],
+      "color": "line",
+      "r": 0,
+      "width": 2,
+      "flow": {
+        "period": 1.8,
+        "offsets": [
+          0,
+          0.9
+        ],
+        "color": "bl"
+      }
+    },
+    {
+      "type": "path",
+      "points": [
+        [
+          796,
+          557
+        ],
+        [
+          796,
+          611
+        ]
+      ],
+      "color": "line",
+      "r": 0,
+      "width": 2,
+      "flow": {
+        "period": 2.1,
+        "offsets": [
+          0,
+          0.9
+        ],
+        "color": "bl"
+      }
+    },
+    {
+      "type": "path",
+      "points": [
+        [
+          284,
+          694
+        ],
+        [
+          284,
+          748
+        ]
+      ],
+      "color": "line",
+      "r": 0,
+      "width": 2,
+      "flow": {
+        "period": 2.4,
+        "offsets": [
+          0,
+          0.9
+        ],
+        "color": "bl"
+      }
+    },
+    {
+      "type": "path",
+      "points": [
+        [
+          796,
+          694
+        ],
+        [
+          796,
+          748
+        ]
+      ],
+      "color": "line",
+      "r": 0,
+      "width": 2,
+      "flow": {
+        "period": 2.7,
+        "offsets": [
+          0,
+          0.9
+        ],
+        "color": "bl"
+      }
+    },
+    {
+      "type": "box",
+      "x": 40,
+      "y": 146,
+      "w": 489,
+      "h": 109,
+      "color": "ye",
+      "pad": [
+        13,
+        14
+      ],
+      "lines": [
+        {
+          "t": "direct · 回合 1",
+          "c": "fg",
+          "b": 1
+        },
+        {
+          "t": "模型 → read",
+          "c": "mute"
+        }
+      ]
+    },
+    {
+      "type": "box",
+      "x": 551,
+      "y": 146,
+      "w": 489,
+      "h": 109,
+      "color": "gr",
+      "pad": [
+        13,
+        14
+      ],
+      "lines": [
+        {
+          "t": "codemode · 回合 1",
+          "c": "fg",
+          "b": 1
+        },
+        {
+          "t": "模型发一段 JS",
+          "c": "mute"
+        },
+        {
+          "t": "循环 tools.*",
+          "c": "mute"
+        }
+      ]
+    },
+    {
+      "type": "box",
+      "x": 40,
+      "y": 311,
+      "w": 489,
+      "h": 109,
+      "color": "ye",
+      "pad": [
+        13,
+        14
+      ],
+      "lines": [
+        {
+          "t": "direct · 回合 2",
+          "c": "fg",
+          "b": 1
+        },
+        {
+          "t": "模型 → edit",
+          "c": "mute"
+        }
+      ]
+    },
+    {
+      "type": "box",
+      "x": 551,
+      "y": 311,
+      "w": 489,
+      "h": 109,
+      "color": "gr",
+      "pad": [
+        13,
+        14
+      ],
+      "lines": [
+        {
+          "t": "codemode · 执行中",
+          "c": "fg",
+          "b": 1
+        },
+        {
+          "t": "QuickJS 线程",
+          "c": "mute"
+        },
+        {
+          "t": "一次跑完 5 个调用",
+          "c": "mute"
+        }
+      ]
+    },
+    {
+      "type": "box",
+      "x": 40,
+      "y": 476,
+      "w": 489,
+      "h": 81,
+      "color": "ye",
+      "pad": [
+        13,
+        14
+      ],
+      "lines": [
+        {
+          "t": "direct · 回合 3",
+          "c": "fg",
+          "b": 1
+        },
+        {
+          "t": "模型 → read",
+          "c": "mute"
+        }
+      ]
+    },
+    {
+      "type": "box",
+      "x": 551,
+      "y": 476,
+      "w": 489,
+      "h": 81,
+      "color": "cy",
+      "pad": [
+        13,
+        14
+      ],
+      "lines": [
+        {
+          "t": "codemode · 完成",
+          "c": "fg",
+          "b": 1
+        },
+        {
+          "t": "结果一次回传",
+          "c": "mute"
+        }
+      ]
+    },
+    {
+      "type": "box",
+      "x": 40,
+      "y": 613,
+      "w": 489,
+      "h": 81,
+      "color": "ye",
+      "pad": [
+        13,
+        14
+      ],
+      "lines": [
+        {
+          "t": "direct · 回合 4",
+          "c": "fg",
+          "b": 1
+        },
+        {
+          "t": "模型 → edit",
+          "c": "mute"
+        }
+      ]
+    },
+    {
+      "type": "box",
+      "x": 551,
+      "y": 613,
+      "w": 489,
+      "h": 81,
+      "color": "wh",
+      "pad": [
+        13,
+        14
+      ],
+      "lines": [
+        {
+          "t": "codemode · 已结束",
+          "c": "fg",
+          "b": 1
+        },
+        {
+          "t": "等 direct 追赶",
+          "c": "mute"
+        }
+      ]
+    },
+    {
+      "type": "box",
+      "x": 40,
+      "y": 750,
+      "w": 489,
+      "h": 81,
+      "color": "ye",
+      "pad": [
+        13,
+        14
+      ],
+      "lines": [
+        {
+          "t": "direct · 回合 5",
+          "c": "fg",
+          "b": 1
+        },
+        {
+          "t": "模型 → write",
+          "c": "mute"
+        }
+      ]
+    },
+    {
+      "type": "box",
+      "x": 551,
+      "y": 750,
+      "w": 489,
+      "h": 81,
+      "color": "ma",
+      "pad": [
+        13,
+        14
+      ],
+      "lines": [
+        {
+          "t": "成本",
+          "c": "fg",
+          "b": 1
+        },
+        {
+          "t": "5 回合 vs 1 回合",
+          "c": "mute"
+        }
+      ]
+    }
+  ],
+  "clock": {
+    "start": "23:48:04",
+    "rate": 3
+  },
+  "titlebar": {
+    "text": "~/fx — turns"
+  },
+  "credit": {
+    "text": "fx codemode · live-panel",
+    "y": 1064,
+    "size": 12
+  }
+}

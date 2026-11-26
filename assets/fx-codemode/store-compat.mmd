@@ -1,0 +1,9 @@
+flowchart TD
+    A["store.set(key, value)"] --> B{"key 已存在？"}
+    B -- 否 --> C["直接写入"]
+    B -- 是 --> D{"schema/结构兼容？"}
+    D -- "是（同形）" --> E["覆盖写入，保留读者"]
+    D -- "否（异形）" --> F["拒绝写入并报错"]
+    F --> G["提示：换 key 或 migrate()"]
+    E --> H["事件：store.updated 通知订阅者"]
+    C --> H

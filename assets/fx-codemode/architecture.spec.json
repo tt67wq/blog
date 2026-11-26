@@ -1,0 +1,90 @@
+{
+  "theme": "terminal-dark",
+  "canvas": "4:5",
+  "lang": "zh",
+  "title": "FX CODEMODE · 架构",
+  "titlebar": "~/fx — codemode host",
+  "rows": [
+    [
+      {
+        "name": "Model",
+        "lines": [
+          "Claude 等模型",
+          "发出一段 JS 脚本"
+        ],
+        "color": "ma"
+      }
+    ],
+    [
+      {
+        "name": "fx orchestrator",
+        "lines": [
+          "接收回合请求",
+          "准入检查"
+        ],
+        "color": "cy"
+      }
+    ],
+    [
+      {
+        "name": "codemode host",
+        "lines": [
+          "QuickJS 专用线程",
+          "启动 ~2ms · 单二进制"
+        ],
+        "color": "gr",
+        "lane": {
+          "busy": "执行脚本中",
+          "done": [
+            "脚本完成",
+            "结果回传"
+          ],
+          "log": [
+            "text() 拼装输出",
+            "await tools.read(...)"
+          ]
+        }
+      }
+    ],
+    [
+      {
+        "name": "bridge → executeToolCallAuthorized",
+        "lines": [
+          "权限闸门 · permission-first",
+          "按授权逐个放行"
+        ],
+        "color": "ye"
+      }
+    ],
+    [
+      {
+        "name": "tools",
+        "lines": [
+          "read / bash / edit / write",
+          "searchTools / describeTool"
+        ],
+        "color": "wh"
+      }
+    ]
+  ],
+  "counters": [
+    {
+      "id": "calls",
+      "label": "tool_call (30d)",
+      "start": 2610,
+      "rate": 0
+    },
+    {
+      "id": "results",
+      "label": "codemode 结果",
+      "start": 2062,
+      "rate": 0
+    }
+  ],
+  "log": {
+    "title": "session log",
+    "rows": 3
+  },
+  "note": "2610 / 2062 / 2ms 为真实扫描值；动画与速率为示意 (illustrative)",
+  "credit": "fx codemode · live-panel"
+}
