@@ -153,3 +153,8 @@ mark {
 .post-content li { margin: .4em 0; }
 .post-content strong { color: var(--primary); }
 .post-content .src-note { display: block; margin-top: .35em; font-size: .82rem; color: var(--secondary); }
+
+/* ---- B-12：impl-note 折叠块（正文技术细节下沉） ---- */
+.post-content details.impl-note { margin: 1em 0; border: 1px solid var(--border); border-radius: var(--radius); padding: .5rem .9rem; }
+.post-content details.impl-note summary { cursor: pointer; color: var(--secondary); font-size: .9rem; }
+.post-content details.impl-note[open] summary { margin-bottom: .5em; }
