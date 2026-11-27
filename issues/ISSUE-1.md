@@ -1,6 +1,7 @@
 # ISSUE-1 — 文章声称的实验数据目录 tmp/fx-exp/ 不存在
 
-- status: open
+- status: closed
+- resolution: B-9 改措辞如实化(e8fdcab), B-10 approve; 重跑实验补数据留作可选升级
 - 来源: B-8 评审 blocker B1（blog-pi5, review commit 710de47）；conductor 已独立证实
 - 位置: content/posts/fx-codemode-design.md L129「实验脚本与原始输出存于博客仓库 tmp/fx-exp/，2026-11-26 实测」
 
