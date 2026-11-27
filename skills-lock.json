@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "skills": {
+    "article-writing": {
+      "source": "affaan-m/ECC",
+      "commit": "4adeee6732a12d1540f49a4d50a38ce8c97f9a53",
+      "sourceType": "github",
+      "skillPath": "skills/article-writing/SKILL.md",
+      "computedHash": "6c7152e225bf13949c68f986ab59b62f486f7ef701b8ed27fd2e4fef37056ad2",
+      "installMode": "copy"
+    },
+    "writing-shape": {
+      "source": "mattpocock/skills",
+      "commit": "6f7f7831a625f040a8e06a0e7954826b87ce775a",
+      "sourceType": "github",
+      "skillPath": "skills/in-progress/writing-shape/SKILL.md",
+      "computedHash": "7e06f4ca8a96c83b5b9a540c0279e998ba449e74586c77d44f9b8183c1bd8ef8",
+      "installMode": "copy"
+    }
+  }
+}
