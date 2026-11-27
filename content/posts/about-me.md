@@ -15,5 +15,4 @@ comments: false
 💬 博客在 <a href="https://blog.tt67wq.com/">blog.tt67wq.com</a><br>
 📩 邮箱 <a href="mailto:807643203@qq.com">807643203@qq.com</a><br>
 🐙 GitHub：<a href="https://github.com/tt67wq">tt67wq</a><br>
-🐦 X：<a href="https://x.com/tt67wqwyj">@tt67wqwyj</a><br>
 </div>
