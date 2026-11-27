@@ -145,3 +145,11 @@ mark {
   box-decoration-break: clone;
 }
 [data-theme="dark"] mark { background: rgba(214, 178, 46, .26); }
+
+/* ---- 阅读体验：中文行高/段距/节锚点 ---- */
+.post-content { line-height: 1.9; font-size: 1.05rem; }
+.post-content p { margin: 1.1em 0; }
+.post-content h2 { margin-top: 2.4em; padding-bottom: .3em; border-bottom: 1px solid var(--border); }
+.post-content li { margin: .4em 0; }
+.post-content strong { color: var(--primary); }
+.post-content .src-note { display: block; margin-top: .35em; font-size: .82rem; color: var(--secondary); }
